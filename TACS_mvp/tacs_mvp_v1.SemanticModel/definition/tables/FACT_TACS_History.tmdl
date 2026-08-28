@@ -1,0 +1,64 @@
+table FACT_TACS_History
+	lineageTag: 93fa43a8-a519-4633-bb06-571f4e7d6f22
+
+	column HistoryKey
+		dataType: string
+		isKey
+		lineageTag: 74d3da99-28e1-40ea-8058-e427f6cb5b6c
+		sourceColumn: HistoryKey
+
+	column HostID
+		dataType: string
+		lineageTag: 3695d43a-8234-4955-9182-73efa175f493
+		sourceColumn: HostID
+
+	column 스냅샷일자
+		dataType: dateTime
+		lineageTag: 11895c2c-a46b-45b7-8083-cd63c5a312ff
+		sourceColumn: 스냅샷일자
+
+	column TACS수용_OS
+		dataType: string
+		lineageTag: b8ded1ee-020c-4bb4-83b8-15c95c9641c5
+		sourceColumn: TACS수용_OS
+
+	column TACS수용_DB
+		dataType: string
+		lineageTag: 3b626166-a666-4924-90d6-3bb7971c0dec
+		sourceColumn: TACS수용_DB
+
+	column VerifyStatus
+		dataType: string
+		lineageTag: 56eb7eb5-5ce9-460d-831b-edb0844f7118
+		sourceColumn: VerifyStatus
+
+	column 변경유형
+		dataType: string
+		lineageTag: 9bed7ded-e9ce-4897-aa30-1e4585e43ff4
+		sourceColumn: 변경유형
+
+	column 이전값
+		dataType: string
+		lineageTag: 68d277c9-ae84-43f3-9603-2b308159b38a
+		sourceColumn: 이전값
+
+	column 변경일
+		dataType: dateTime
+		lineageTag: 9a7ad3ec-8b92-443b-b518-29b6525a44d0
+		sourceColumn: 변경일
+
+	partition FACT_TACS_History = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "TACS_관리대장_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="이력관리", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"HistoryKey", type text}, {"HostID", type text}, {"스냅샷일자", type date},
+				        {"TACS수용_OS", type text}, {"TACS수용_DB", type text}, {"VerifyStatus", type text},
+				        {"변경유형", type text}, {"이전값", type text}, {"변경일", type date}
+				    })
+				in
+				    Typed
+

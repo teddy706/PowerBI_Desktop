@@ -1,0 +1,68 @@
+table FACT_TACS_Escalation
+	lineageTag: 8c01f08b-79d6-4f88-8b99-47c067dd0a13
+
+	measure 'SLA 초과 건수' =
+			CALCULATE(
+			    COUNTROWS(FACT_TACS_Escalation),
+			    FACT_TACS_Escalation[처리상태] <> "완료",
+			    FACT_TACS_Escalation[SLA기한] < TODAY()
+			)
+		formatString: #,0
+		lineageTag: e4dde953-92ab-4a86-a7fe-2d48d545d089
+
+	column EscalationKey
+		dataType: string
+		isKey
+		lineageTag: 9281a618-5bb3-4302-ac85-06247770988f
+		sourceColumn: EscalationKey
+
+	column HostID
+		dataType: string
+		lineageTag: 907e8f09-2187-4be9-a580-8998de99788b
+		sourceColumn: HostID
+
+	column 리스크등급
+		dataType: string
+		lineageTag: 494195b9-c786-45df-9a70-24c7abc96514
+		sourceColumn: 리스크등급
+
+	column 발생일
+		dataType: dateTime
+		lineageTag: 1ffe3cae-2681-4c28-8470-d2d8a72bba1a
+		sourceColumn: 발생일
+
+	column SLA기한
+		dataType: dateTime
+		lineageTag: 9d7035ea-9da9-4b92-b9f2-deb39e1519f5
+		sourceColumn: SLA기한
+
+	column 담당자
+		dataType: string
+		lineageTag: 6fce7a80-85d7-4822-bffb-4057c84682f2
+		sourceColumn: 담당자
+
+	column 처리상태
+		dataType: string
+		lineageTag: 4970c4da-cf3b-4b4d-b28f-1d0985f3c369
+		sourceColumn: 처리상태
+
+	column 최종조치일
+		dataType: dateTime
+		lineageTag: 1dbad4c6-7778-442a-8292-a15978160fbd
+		sourceColumn: 최종조치일
+
+	partition FACT_TACS_Escalation = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "TACS_관리대장_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="에스컬레이션", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"EscalationKey", type text}, {"HostID", type text}, {"리스크등급", type text},
+				        {"발생일", type date}, {"SLA기한", type date}, {"담당자", type text},
+				        {"처리상태", type text}, {"최종조치일", type date}
+				    })
+				in
+				    Typed
+

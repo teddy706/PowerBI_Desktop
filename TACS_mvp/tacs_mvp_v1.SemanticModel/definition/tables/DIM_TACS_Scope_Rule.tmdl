@@ -1,0 +1,53 @@
+table DIM_TACS_Scope_Rule
+	lineageTag: 867d810f-06e2-4fd6-8023-2cba10b9119b
+
+	column RuleKey
+		dataType: string
+		isKey
+		lineageTag: 9969b36a-113b-42cb-94b7-4d5ea884b422
+		sourceColumn: RuleKey
+
+	column 적용조건_서비스등급
+		dataType: string
+		lineageTag: 34a223a2-d5d8-40cd-9866-a04d6beb8cec
+		sourceColumn: 적용조건_서비스등급
+
+	column 적용조건_OS계열
+		dataType: string
+		lineageTag: 36c84a3e-8a58-432e-8b39-b0b9da201de6
+		sourceColumn: 적용조건_OS계열
+
+	column 적용조건_서비스구분
+		dataType: string
+		lineageTag: f4a69ae3-4548-42d3-955f-95515693eb43
+		sourceColumn: 적용조건_서비스구분
+
+	column 대상여부
+		dataType: string
+		lineageTag: 1b474d04-3d2d-4675-954e-4cdc9917a5d8
+		sourceColumn: 대상여부
+
+	column 규칙설명
+		dataType: string
+		lineageTag: 06c0c358-283d-40e2-9b54-9924d1e6f632
+		sourceColumn: 규칙설명
+
+	column 최종개정일
+		dataType: dateTime
+		lineageTag: 6bbd9f62-94d0-4be9-9491-276a2e76ffa5
+		sourceColumn: 최종개정일
+
+	partition DIM_TACS_Scope_Rule = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "차원테이블_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="DIM_TACS_Scope_Rule", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"RuleKey", type text}, {"적용조건_서비스등급", type text}, {"적용조건_OS계열", type text},
+				        {"적용조건_서비스구분", type text}, {"대상여부", type text}, {"규칙설명", type text}, {"최종개정일", type date}
+				    })
+				in
+				    Typed
+

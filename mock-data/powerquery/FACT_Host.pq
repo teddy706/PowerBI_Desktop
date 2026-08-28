@@ -12,7 +12,7 @@ let
         {"PO부서", type text}, {"PO", type text}, {"BA부서", type text}, {"BA", type text},
         {"표준서비스", type text}, {"표준서비스명", type text}, {"단위서비스", type text}, {"단위서비스명", type text},
         {"서비스등급", type text}, {"VM수집방식상세", type text}, {"설비상태", type text},
-        {"최근접속일자", type date}, {"미접속일수", Int64.Type}, {"서버관리_TACS등록여부", type text}
+        {"최근접속일자", type date}, {"미접속일수", Int64.Type}, {"서버관리_TACS등록여부", type text}, {"서비스구분", type text}
     })
 in
     Typed

@@ -35,3 +35,5 @@ table TACS_원본추출
 				in
 				    Typed
 
+	annotation PBI_ResultType = Table
+

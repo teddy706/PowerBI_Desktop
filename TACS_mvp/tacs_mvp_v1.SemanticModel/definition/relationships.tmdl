@@ -37,3 +37,15 @@ relationship FACT_TACS_Verification_HostID_FACT_Host_HostID
 	fromColumn: FACT_TACS_Verification.HostID
 	toColumn: FACT_Host.HostID
 
+relationship FACT_TACS_Exception_HostID_FACT_Host_HostID
+	fromColumn: FACT_TACS_Exception.HostID
+	toColumn: FACT_Host.HostID
+
+relationship FACT_TACS_History_HostID_FACT_Host_HostID
+	fromColumn: FACT_TACS_History.HostID
+	toColumn: FACT_Host.HostID
+
+relationship FACT_TACS_Escalation_HostID_FACT_Host_HostID
+	fromColumn: FACT_TACS_Escalation.HostID
+	toColumn: FACT_Host.HostID
+

@@ -19,4 +19,13 @@ FACT_TACS_Verification 검증 시뮬레이션 (Host 500건 기준, TACS원본추
   UNVERIFIED: 18건 (4%)
   해당없음(N): 50건 (10%)
 
+--- 10장 확장 ---
+FACT_Host 서비스구분: 운영 425건 / 개발 75건
+DIM_TACS_Scope_Rule: 12건
+FACT_TACS_Exception: 200건
+  - 만료: 40건 (20%), 만료임박(30일 이내): 25건 (12%)
+FACT_TACS_History: 2000건 (최근 90일)
+FACT_TACS_Escalation: 150건
+  - SLA 초과(미완료 & 기한경과): 61건
+
 출력 위치: C:\Users\teddy\iCloudDrive\Documents\110_Github\PowerBI_Desktop\mock-data\out

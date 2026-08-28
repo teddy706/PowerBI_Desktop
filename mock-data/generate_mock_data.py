@@ -350,6 +350,167 @@ for h in hosts:
     })
 
 
+# ---------------------------------------------------------------------------
+# 10장 확장: TACS 관리 기준 확장
+# 10-1) DIM_TACS_Scope_Rule (대상 판단 규칙, 12건)
+# 10-2) FACT_TACS_Exception (예외 승인·만료, 200건)
+# 10-3) FACT_TACS_History (이력/변경 스냅샷, ~2000건)
+# 10-4) FACT_TACS_Escalation (미이행 리스크 에스컬레이션, 150건)
+# ---------------------------------------------------------------------------
+
+# --- 서비스구분(운영/개발)을 FACT_Host에 추가 (TACS대상여부 판단에 필요) ---
+svcgu_order = list(hosts)
+random.shuffle(svcgu_order)
+n_dev = round(len(svcgu_order) * 0.15)
+for h in svcgu_order[:n_dev]:
+    h["서비스구분"] = "개발"
+for h in svcgu_order[n_dev:]:
+    h["서비스구분"] = "운영"
+
+# --- 10-1) DIM_TACS_Scope_Rule ---
+# 기본 원칙: 운영+Critical/High는 대상, 개발+Low는 비대상. Legacy OS는 별도 예외로 항상 비대상
+# (FACT_Host[서비스등급]+[서비스구분] 조합 8건 + Legacy/기타 예외 사유 문서화용 4건 = 12건)
+BASE_SCOPE_RULES = [
+    ("Critical", "운영", "Y"), ("Critical", "개발", "Y"),
+    ("High", "운영", "Y"), ("High", "개발", "N"),
+    ("Medium", "운영", "Y"), ("Medium", "개발", "N"),
+    ("Low", "운영", "N"), ("Low", "개발", "N"),
+]
+dim_scope_rule_rows = []
+for i, (grade, gubun, target) in enumerate(BASE_SCOPE_RULES, start=1):
+    dim_scope_rule_rows.append({
+        "RuleKey": f"RULE{i:03d}",
+        "적용조건_서비스등급": grade,
+        "적용조건_OS계열": "ALL",
+        "적용조건_서비스구분": gubun,
+        "대상여부": target,
+        "규칙설명": f"{gubun}환경 {grade}등급 기본 원칙",
+        "최종개정일": rand_date(date(2025, 9, 1), TODAY),
+    })
+LEGACY_OVERRIDE_NOTES = [
+    ("RHEL 7.9 (EOS)", "RHEL 7.9는 EOS 대상으로 TACS 적용 제외"),
+    ("Windows2012 R2 (EOS)", "Windows2012 R2는 EOS 대상으로 TACS 적용 제외"),
+    ("폐기예정 장비", "설비상태=폐기예정 장비는 TACS 적용 제외"),
+    ("장기 미접속 장비", "미접속일수 90일 이상 장비는 TACS 적용 제외 검토 대상"),
+]
+for i, (os_label, desc) in enumerate(LEGACY_OVERRIDE_NOTES, start=len(BASE_SCOPE_RULES) + 1):
+    dim_scope_rule_rows.append({
+        "RuleKey": f"RULE{i:03d}",
+        "적용조건_서비스등급": "ALL",
+        "적용조건_OS계열": os_label,
+        "적용조건_서비스구분": "ALL",
+        "대상여부": "N",
+        "규칙설명": desc,
+        "최종개정일": rand_date(date(2025, 9, 1), TODAY),
+    })
+
+# --- 10-2) FACT_TACS_Exception (200건) ---
+EXCEPTION_REASON_POOL = ["Legacy OS"] * 40 + ["Vendor 제한"] * 25 + ["서비스 영향도"] * 20 + ["업그레이드 예정"] * 15
+REVIEW_MONTHS = {"Legacy OS": 12, "Vendor 제한": 6, "서비스 영향도": 6, "업그레이드 예정": 3}
+APPROVERS = ["NW운용1팀장", "NW운용2팀장", "보안팀장", "IDC운용팀장"]
+exception_host_pool = [t["HostID"] for t in tacs_rows if t["TACS수용(OS)"] == "N" or t["TACS수용(DB)"] == "N"]
+
+exception_rows = []
+for i in range(1, 201):
+    host_id = random.choice(exception_host_pool)
+    reason = pick_weighted(EXCEPTION_REASON_POOL)
+    months = REVIEW_MONTHS[reason]
+    review_days = months * 30
+    r = random.random()
+    if r < 0.20:
+        # 이미 만료: 승인일을 review_days보다 더 오래 전으로 잡아 자연히 만료되게 함
+        approve_date = TODAY - timedelta(days=review_days + random.randint(1, 200))
+        expire_date = approve_date + timedelta(days=review_days)
+    elif r < 0.35:
+        # 만료임박(30일 이내): expire_date를 오늘 기준 0~30일 뒤로 역산
+        expire_date = TODAY + timedelta(days=random.randint(0, 30))
+        approve_date = expire_date - timedelta(days=review_days)
+    else:
+        # 유효: 승인일을 review_days 대비 충분히 최근으로 잡아 만료일이 30일 이상 남도록 함
+        latest_approve_offset = max(review_days - 31, 0)
+        approve_date = TODAY - timedelta(days=random.randint(0, latest_approve_offset))
+        expire_date = approve_date + timedelta(days=review_days)
+    exception_rows.append({
+        "ExceptionKey": f"EXC{i:04d}",
+        "HostID": host_id,
+        "예외사유": reason,
+        "예외사유상세": f"{reason} 관련 상세 사유",
+        "승인자": random.choice(APPROVERS),
+        "승인일": approve_date,
+        "재검토주기_개월": months,
+        "만료예정일": expire_date,
+    })
+
+# --- 10-3) FACT_TACS_History (약 2000건, 최근 90일 스냅샷 로그) ---
+CHANGE_TYPE_POOL = (["신규등록"] * 15 + ["상태변경"] * 10 + ["예외추가"] * 20 +
+                     ["예외만료"] * 15 + ["미확인전환"] * 10 + ["변경없음(정기 스냅샷)"] * 30)
+VERIFY_STATUS_POOL_FOR_HISTORY = ["VERIFIED", "VERIFIED_NAME_ONLY", "VERIFIED_IP_ONLY"]
+
+history_rows = []
+for i in range(1, 2001):
+    h = random.choice(hosts)
+    change_type = pick_weighted(CHANGE_TYPE_POOL)
+    snapshot_date = TODAY - timedelta(days=random.randint(0, 90))
+    if change_type == "미확인전환":
+        verify_status = "UNVERIFIED"
+        prev_value = random.choice(VERIFY_STATUS_POOL_FOR_HISTORY)
+    else:
+        verify_status = random.choice(VERIFY_STATUS_POOL_FOR_HISTORY + ["UNVERIFIED"])
+        prev_value = ""
+    history_rows.append({
+        "HistoryKey": f"HIST{i:05d}",
+        "HostID": h["HostID"],
+        "스냅샷일자": snapshot_date,
+        "TACS수용_OS": "Y" if random.random() < 0.90 else "N",
+        "TACS수용_DB": "Y" if random.random() < 0.85 else "N",
+        "VerifyStatus": verify_status,
+        "변경유형": change_type,
+        "이전값": prev_value,
+        "변경일": snapshot_date,
+    })
+history_rows.sort(key=lambda r: r["스냅샷일자"])
+
+# --- 10-4) FACT_TACS_Escalation (150건) ---
+RISK_SLA_DAYS = {"Critical": 3, "High": 7, "Medium": 14, "Low": 30}
+RISK_POOL = ["Critical"] * 10 + ["High"] * 25 + ["Medium"] * 40 + ["Low"] * 25
+unverified_host_ids = [hid for hid, (claim, status) in claim_status.items() if status == "UNVERIFIED"]
+escalation_host_pool = (
+    unverified_host_ids  # UNVERIFIED 18건
+    + [e["HostID"] for e in exception_rows if e["만료예정일"] < TODAY]  # 만료된 예외건
+)
+if not escalation_host_pool:
+    escalation_host_pool = [h["HostID"] for h in hosts]
+
+escalation_rows = []
+for i in range(1, 151):
+    risk = pick_weighted(RISK_POOL)
+    occur_date = TODAY - timedelta(days=random.randint(0, 60))
+    sla_date = occur_date + timedelta(days=RISK_SLA_DAYS[risk])
+    r = random.random()
+    if r < 0.60:
+        status = "완료"
+    elif r < 0.85:
+        status = "조치중"
+    else:
+        status = "미조치"
+    final_action_date = None
+    if status == "완료":
+        offset = random.randint(-5, 5)
+        final_action_date = sla_date + timedelta(days=offset)
+    elif status == "미조치" and random.random() < 0.6:
+        sla_date = TODAY - timedelta(days=random.randint(1, 10))  # SLA 초과 케이스 보장
+    escalation_rows.append({
+        "EscalationKey": f"ESC{i:04d}",
+        "HostID": random.choice(escalation_host_pool),
+        "리스크등급": risk,
+        "발생일": occur_date,
+        "SLA기한": sla_date,
+        "담당자": f"담당자{random.randint(1, 20):02d}",
+        "처리상태": status,
+        "최종조치일": final_action_date,
+    })
+
+
 def write_sheet(ws, rows):
     if not rows:
         return
@@ -394,7 +555,20 @@ ws2 = wb.create_sheet("DIM_Department")
 write_sheet(ws2, dim_dept_rows)
 ws3 = wb.create_sheet("DIM_OS")
 write_sheet(ws3, dim_os_rows)
+ws4 = wb.create_sheet("DIM_TACS_Scope_Rule")
+write_sheet(ws4, dim_scope_rule_rows)
 wb.save(OUT_DIR / "차원테이블_20260828.xlsx")
+
+# 5) TACS 관리대장 (10장 확장 — 예외/이력/에스컬레이션, 원본에 없는 관리 트래킹 데이터)
+wb = Workbook()
+ws1 = wb.active
+ws1.title = "예외관리"
+write_sheet(ws1, exception_rows)
+ws2 = wb.create_sheet("이력관리")
+write_sheet(ws2, history_rows)
+ws3 = wb.create_sheet("에스컬레이션")
+write_sheet(ws3, escalation_rows)
+wb.save(OUT_DIR / "TACS_관리대장_20260828.xlsx")
 
 # ---------------------------------------------------------------------------
 # 매칭 검증 시뮬레이션 (Power Query 매칭 로직을 파이썬으로 미리 재현해 분포 확인)
@@ -448,6 +622,19 @@ with open(Path(__file__).parent / "summary.txt", "w", encoding="utf-8") as f:
     f.write(f"\nFACT_TACS_Verification 검증 시뮬레이션 (Host 500건 기준, TACS원본추출 {len(tacs_source_rows)}건):\n")
     for k, v in verify_counts.items():
         f.write(f"  {k}: {v}건 ({v/len(hosts):.0%})\n")
+
+    f.write(f"\n--- 10장 확장 ---\n")
+    f.write(f"FACT_Host 서비스구분: 운영 {sum(1 for h in hosts if h['서비스구분']=='운영')}건 / 개발 {sum(1 for h in hosts if h['서비스구분']=='개발')}건\n")
+    f.write(f"DIM_TACS_Scope_Rule: {len(dim_scope_rule_rows)}건\n")
+    f.write(f"FACT_TACS_Exception: {len(exception_rows)}건\n")
+    n_expired = sum(1 for e in exception_rows if e['만료예정일'] < TODAY)
+    n_soon = sum(1 for e in exception_rows if TODAY <= e['만료예정일'] <= TODAY + timedelta(days=30))
+    f.write(f"  - 만료: {n_expired}건 ({n_expired/len(exception_rows):.0%}), 만료임박(30일 이내): {n_soon}건 ({n_soon/len(exception_rows):.0%})\n")
+    f.write(f"FACT_TACS_History: {len(history_rows)}건 (최근 90일)\n")
+    f.write(f"FACT_TACS_Escalation: {len(escalation_rows)}건\n")
+    n_overdue = sum(1 for e in escalation_rows if e['처리상태'] != '완료' and e['SLA기한'] < TODAY)
+    f.write(f"  - SLA 초과(미완료 & 기한경과): {n_overdue}건\n")
+
     f.write(f"\n출력 위치: {OUT_DIR}\n")
 
 print("done - see summary.txt")

@@ -1,0 +1,82 @@
+table FACT_TACS_Exception
+	lineageTag: 681ee1f5-1355-4116-95a7-644c2d9aedb4
+
+	measure '예외 유효' = CALCULATE(COUNTROWS(FACT_TACS_Exception), FACT_TACS_Exception[예외상태] = "유효")
+		formatString: #,0
+		lineageTag: 6f881035-c66f-4e66-a54e-fba828e9c264
+
+	measure '예외 만료임박' = CALCULATE(COUNTROWS(FACT_TACS_Exception), FACT_TACS_Exception[예외상태] = "만료임박")
+		formatString: #,0
+		lineageTag: 4674f535-30c3-40b9-aee9-028fcf8d551e
+
+	measure '예외 만료' = CALCULATE(COUNTROWS(FACT_TACS_Exception), FACT_TACS_Exception[예외상태] = "만료")
+		formatString: #,0
+		lineageTag: 56831e17-db2c-4bf1-88f3-80788b5a47f6
+
+	column ExceptionKey
+		dataType: string
+		isKey
+		lineageTag: 46547fb2-646d-45ee-bcb4-8d2c5c1c1e45
+		sourceColumn: ExceptionKey
+
+	column HostID
+		dataType: string
+		lineageTag: 89ad7417-4c45-4be8-8ba7-f33c603c49a5
+		sourceColumn: HostID
+
+	column 예외사유
+		dataType: string
+		lineageTag: 66d12ed6-8016-4b2f-ab50-2f840297fff7
+		sourceColumn: 예외사유
+
+	column 예외사유상세
+		dataType: string
+		lineageTag: 0d5ae159-3ce1-4ad2-b338-a8e2d4a56234
+		sourceColumn: 예외사유상세
+
+	column 승인자
+		dataType: string
+		lineageTag: 09399fa4-c7f1-424e-907f-9e385d4bfca6
+		sourceColumn: 승인자
+
+	column 승인일
+		dataType: dateTime
+		lineageTag: 8f48c575-a40b-4503-9d49-e74bec46b52a
+		sourceColumn: 승인일
+
+	column 재검토주기_개월
+		dataType: int64
+		lineageTag: 4231d2d4-98fe-4496-95a1-6a433672ba38
+		sourceColumn: 재검토주기_개월
+
+	column 만료예정일
+		dataType: dateTime
+		lineageTag: 7369f243-f9a2-4d2f-9022-5e5e6d1533af
+		sourceColumn: 만료예정일
+
+	column 예외상태 =
+			VAR DaysLeft = DATEDIFF(TODAY(), FACT_TACS_Exception[만료예정일], DAY)
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    DaysLeft < 0, "만료",
+			    DaysLeft <= 30, "만료임박",
+			    "유효"
+			)
+		dataType: string
+		lineageTag: c8bbbf48-bcca-4ce5-b157-cd6f0a2a5775
+
+	partition FACT_TACS_Exception = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "TACS_관리대장_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="예외관리", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"ExceptionKey", type text}, {"HostID", type text}, {"예외사유", type text}, {"예외사유상세", type text},
+				        {"승인자", type text}, {"승인일", type date}, {"재검토주기_개월", Int64.Type}, {"만료예정일", type date}
+				    })
+				in
+				    Typed
+

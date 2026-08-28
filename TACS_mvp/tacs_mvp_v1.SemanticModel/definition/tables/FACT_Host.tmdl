@@ -33,6 +33,18 @@ table FACT_Host
 		formatString: #,0
 		lineageTag: 4a440c59-e4e1-4561-858a-e643d2f3df3d
 
+	measure 'TACS 대상 서버 수' = CALCULATE(COUNTROWS(FACT_Host), FACT_Host[TACS대상여부] = "Y")
+		formatString: #,0
+		lineageTag: 4f8ebd5b-0305-4560-889f-172a2865f254
+
+	measure 'TACS 등록률(대상기준)' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_TACS), FACT_TACS[TACS수용(OS)] = "Y", FACT_Host[TACS대상여부] = "Y"),
+			    CALCULATE(COUNTROWS(FACT_Host), FACT_Host[TACS대상여부] = "Y")
+			)
+		formatString: 0.0%
+		lineageTag: b386d217-fd3b-4332-ba14-5f0ceacc25cc
+
 	column HostID
 		dataType: string
 		isKey
@@ -282,6 +294,26 @@ table FACT_Host
 
 		annotation SummarizationSetBy = Automatic
 
+	column 서비스구분
+		dataType: string
+		lineageTag: 7ec1f1b1-b6f9-4e7d-bf4c-c827166a0469
+		sourceColumn: 서비스구분
+
+	column TACS대상여부 =
+			VAR IsLegacy = (FACT_Host[OS] = "RHEL" && FACT_Host[OS버전] = "7.9") || (FACT_Host[OS] = "Windows Server" && FACT_Host[OS버전] = "2012 R2")
+			RETURN
+			IF(
+			    IsLegacy,
+			    "N",
+			    LOOKUPVALUE(
+			        DIM_TACS_Scope_Rule[대상여부],
+			        DIM_TACS_Scope_Rule[적용조건_서비스등급], FACT_Host[서비스등급],
+			        DIM_TACS_Scope_Rule[적용조건_서비스구분], FACT_Host[서비스구분]
+			    )
+			)
+		dataType: string
+		lineageTag: cbdab916-75fa-4efe-96f2-a3c98dde6556
+
 	partition FACT_Host = m
 		mode: import
 		source =
@@ -299,7 +331,7 @@ table FACT_Host
 				        {"PO부서", type text}, {"PO", type text}, {"BA부서", type text}, {"BA", type text},
 				        {"표준서비스", type text}, {"표준서비스명", type text}, {"단위서비스", type text}, {"단위서비스명", type text},
 				        {"서비스등급", type text}, {"VM수집방식상세", type text}, {"설비상태", type text},
-				        {"최근접속일자", type date}, {"미접속일수", Int64.Type}, {"서버관리_TACS등록여부", type text}
+				        {"최근접속일자", type date}, {"미접속일수", Int64.Type}, {"서버관리_TACS등록여부", type text}, {"서비스구분", type text}
 				    })
 				in
 				    Typed
