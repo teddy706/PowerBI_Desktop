@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "tacs_mvp_v1"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cbbdbf7f-763f-482f-a33b-4e4ca0f44ad1"
+  }
+}
