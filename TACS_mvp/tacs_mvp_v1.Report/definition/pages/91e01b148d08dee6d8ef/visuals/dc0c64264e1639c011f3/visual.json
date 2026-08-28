@@ -1,0 +1,160 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "dc0c64264e1639c011f3",
+  "position": {
+    "x": 980,
+    "y": 100,
+    "z": 1000,
+    "height": 560,
+    "width": 900,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "AssetKey"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.AssetKey",
+              "nativeQueryRef": "AssetKey"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "장비명"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.장비명",
+              "nativeQueryRef": "장비명"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "장비IP"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.장비IP",
+              "nativeQueryRef": "장비IP"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "HostID"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.HostID",
+              "nativeQueryRef": "HostID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "호스트명"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.호스트명",
+              "nativeQueryRef": "호스트명"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "MatchStatus"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.MatchStatus",
+              "nativeQueryRef": "MatchStatus"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Matching"
+                    }
+                  },
+                  "Property": "MatchScore"
+                }
+              },
+              "queryRef": "FACT_TACS_Matching.MatchScore",
+              "nativeQueryRef": "MatchScore"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FACT_TACS_Matching"
+                  }
+                },
+                "Property": "MatchScore"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

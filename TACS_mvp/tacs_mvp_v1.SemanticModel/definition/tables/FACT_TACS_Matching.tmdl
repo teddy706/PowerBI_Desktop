@@ -1,6 +1,10 @@
 table FACT_TACS_Matching
 	lineageTag: 307ccf49-cc07-4b2b-81a6-96646dbb10cb
 
+	measure '매칭 건수' = COUNTROWS(FACT_TACS_Matching)
+		formatString: #,0
+		lineageTag: 48aae6ee-2ba3-4059-8c0a-5f9d9cea6536
+
 	column AssetKey
 		dataType: string
 		isKey
