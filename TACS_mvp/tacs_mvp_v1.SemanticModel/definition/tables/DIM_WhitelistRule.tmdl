@@ -1,0 +1,61 @@
+table DIM_WhitelistRule
+	lineageTag: 11ec0ef5-9525-45b2-b952-7edcc1ea5381
+
+	measure '재검토대상 룰 수' = CALCULATE(COUNTROWS(DIM_WhitelistRule), DIM_WhitelistRule[재검토대상여부] = "Y")
+		formatString: #,0
+		lineageTag: 4cbb4475-e5c7-47c6-a768-93facea1d9fc
+
+	measure '룰 총건수' = COUNTROWS(DIM_WhitelistRule)
+		formatString: #,0
+		lineageTag: c7678214-226e-4d89-b387-e48e5586abbc
+
+	column RuleID
+		dataType: string
+		isKey
+		lineageTag: ab61fa4c-f503-414d-94a4-2fdab12bd380
+		sourceColumn: RuleID
+
+	column 명령어패턴
+		dataType: string
+		lineageTag: c790d756-f18f-4629-a0b4-e06787e733e8
+		sourceColumn: 명령어패턴
+
+	column 등록근거_CaseID
+		dataType: string
+		lineageTag: 08dfb608-ea1b-4492-9631-f90468de31f4
+		sourceColumn: 등록근거_CaseID
+
+	column 등록일
+		dataType: dateTime
+		lineageTag: 92c2f4e8-0749-45e2-8689-e27a074577f0
+		sourceColumn: 등록일
+
+	column 반복발생횟수
+		dataType: int64
+		lineageTag: bf652d8c-4d72-46b0-89fb-ad92b16ad973
+		sourceColumn: 반복발생횟수
+
+	column 재검토대상여부
+		dataType: string
+		lineageTag: c0c3dd2c-a1a7-474c-9b87-ac438e762d34
+		sourceColumn: 재검토대상여부
+
+	column 재검토사유
+		dataType: string
+		lineageTag: be6209aa-ed24-40f3-b376-bcaa5f633f37
+		sourceColumn: 재검토사유
+
+	partition DIM_WhitelistRule = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "Foundry_연계_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="화이트리스트룰", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"RuleID", type text}, {"명령어패턴", type text}, {"등록근거_CaseID", type text},
+				        {"등록일", type date}, {"반복발생횟수", Int64.Type}, {"재검토대상여부", type text}, {"재검토사유", type text}
+				    })
+				in
+				    Typed
+

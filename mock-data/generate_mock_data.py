@@ -576,6 +576,7 @@ wb.save(OUT_DIR / "TACS_관리대장_20260828.xlsx")
 host_by_name = {h["호스트명"]: h for h in hosts}
 host_by_ip = {h["대표IP"]: h for h in hosts}
 match_counts = {"MATCH": 0, "NAME_MATCH": 0, "IP_MATCH": 0, "NO_MATCH": 0}
+no_match_asset_keys = []
 for a in all_asset_rows:
     h_by_name = host_by_name.get(a["장비명"])
     h_by_ip = host_by_ip.get(a["장비IP"])
@@ -587,6 +588,7 @@ for a in all_asset_rows:
         match_counts["IP_MATCH"] += 1
     else:
         match_counts["NO_MATCH"] += 1
+        no_match_asset_keys.append(a["AssetKey"])
 
 # --- FACT_TACS_Verification 시뮬레이션 (HostID로 TACS원본 조인, name/IP 비교) ---
 tacs_src_by_host = {r["HostID"]: r for r in tacs_source_rows}
@@ -604,6 +606,83 @@ for h in hosts:
             verify_counts["VERIFIED_NAME_ONLY"] += 1
         else:
             verify_counts["VERIFIED_IP_ONLY"] += 1
+
+# ---------------------------------------------------------------------------
+# Palantir Foundry 연계 확장: 이상징후 판정 결과 + 화이트리스트 룰 마스터 현황
+# (Foundry의 실시간 명령어 교차분석·1차/2차 판정 UI 자체는 Power BI 영역이
+#  아니므로, 그 "결과"를 관리 대시보드로 보여주는 부분만 구현한다.
+#  케이스 소스: 유령자산=FACT_TACS_Matching NO_MATCH, 미확인자산=
+#  FACT_TACS_Verification UNVERIFIED, 이상명령어=신규 합성 표본)
+# ---------------------------------------------------------------------------
+FIELD_JUDGES = [f"운영자{i:02d}" for i in (5, 9, 12, 18, 22, 27)]
+SEC_JUDGES = [f"보안분석관{i:02d}" for i in range(1, 11)]
+VERDICT_POOL = ["정상"] * 65 + ["실제위협"] * 10 + ["예외"] * 25
+
+judgment_case_rows = []
+case_seq = 0
+
+
+def add_judgment_case(case_type, host_id, asset_key):
+    global case_seq
+    case_seq += 1
+    detect_dt = TODAY - timedelta(days=random.randint(0, 60))
+    has_statement = random.random() < 0.90
+    field_judge = random.choice(FIELD_JUDGES) if has_statement else ""
+    statement_date = detect_dt + timedelta(days=random.randint(0, 2)) if has_statement else None
+    verdict = pick_weighted(VERDICT_POOL)
+    verdict_base = statement_date or detect_dt
+    verdict_date = verdict_base + timedelta(days=random.randint(0, 3))
+    judgment_case_rows.append({
+        "CaseID": f"CASE{case_seq:04d}",
+        "케이스유형": case_type,
+        "HostID": host_id or "",
+        "AssetKey": asset_key or "",
+        "탐지일시": detect_dt,
+        "1차판단자": field_judge,
+        "1차소명여부": "Y" if has_statement else "N",
+        "1차소명일": statement_date,
+        "2차판단자": random.choice(SEC_JUDGES),
+        "2차판정": verdict,
+        "2차판정일": verdict_date,
+        "처리소요일": (verdict_date - detect_dt).days,
+    })
+
+
+for asset_key in no_match_asset_keys:
+    add_judgment_case("유령자산", None, asset_key)
+for host_id in unverified_host_ids:
+    add_judgment_case("미확인자산", host_id, None)
+for _ in range(30):
+    add_judgment_case("이상명령어", random.choice(hosts)["HostID"], None)
+
+# --- DIM_WhitelistRule: 2차판정="정상" 케이스가 자동으로 화이트리스트 룰로 등록 ---
+RECHECK_THRESHOLD = 5  # PRD 오픈이슈 "N값 미확정" 예시 기본값 (튜닝 가능)
+whitelist_rule_rows = []
+rule_seq = 0
+for c in judgment_case_rows:
+    if c["2차판정"] != "정상":
+        continue
+    rule_seq += 1
+    repeat_count = random.choices(range(1, 16), weights=[20] * 5 + [8] * 5 + [3] * 5)[0]
+    is_recheck = repeat_count >= RECHECK_THRESHOLD
+    whitelist_rule_rows.append({
+        "RuleID": f"RULE-WL{rule_seq:04d}",
+        "명령어패턴": f"패턴-{c['케이스유형']}-{rule_seq:03d}",
+        "등록근거_CaseID": c["CaseID"],
+        "등록일": c["2차판정일"],
+        "반복발생횟수": repeat_count,
+        "재검토대상여부": "Y" if is_recheck else "N",
+        "재검토사유": f"반복발생 {repeat_count}회 (임계치 {RECHECK_THRESHOLD}회 초과)" if is_recheck else "",
+    })
+
+# 6) Foundry 연계 확장 (판정이력 + 화이트리스트룰)
+wb = Workbook()
+ws1 = wb.active
+ws1.title = "판정이력"
+write_sheet(ws1, judgment_case_rows)
+ws2 = wb.create_sheet("화이트리스트룰")
+write_sheet(ws2, whitelist_rule_rows)
+wb.save(OUT_DIR / "Foundry_연계_20260828.xlsx")
 
 # ---------------------------------------------------------------------------
 # 요약 리포트 (콘솔 한글 인코딩 문제 회피를 위해 UTF-8 파일로 기록)
@@ -634,6 +713,18 @@ with open(Path(__file__).parent / "summary.txt", "w", encoding="utf-8") as f:
     f.write(f"FACT_TACS_Escalation: {len(escalation_rows)}건\n")
     n_overdue = sum(1 for e in escalation_rows if e['처리상태'] != '완료' and e['SLA기한'] < TODAY)
     f.write(f"  - SLA 초과(미완료 & 기한경과): {n_overdue}건\n")
+
+    f.write(f"\n--- Foundry 연계 확장 (판정 결과 + 룰 마스터) ---\n")
+    f.write(f"FACT_JudgmentCase: {len(judgment_case_rows)}건\n")
+    for t in ["유령자산", "미확인자산", "이상명령어"]:
+        n = sum(1 for c in judgment_case_rows if c["케이스유형"] == t)
+        f.write(f"  - {t}: {n}건\n")
+    for v in ["정상", "실제위협", "예외"]:
+        n = sum(1 for c in judgment_case_rows if c["2차판정"] == v)
+        f.write(f"  - 2차판정 {v}: {n}건 ({n/len(judgment_case_rows):.0%})\n")
+    f.write(f"DIM_WhitelistRule: {len(whitelist_rule_rows)}건 (2차판정=정상 케이스에서 파생)\n")
+    n_recheck = sum(1 for r in whitelist_rule_rows if r["재검토대상여부"] == "Y")
+    f.write(f"  - 재검토대상(N>={RECHECK_THRESHOLD}회): {n_recheck}건 ({n_recheck/len(whitelist_rule_rows):.0%})\n")
 
     f.write(f"\n출력 위치: {OUT_DIR}\n")
 

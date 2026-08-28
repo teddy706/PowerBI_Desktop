@@ -1,0 +1,204 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "52c8e06c1f9eaa42d42d",
+  "position": {
+    "x": 40,
+    "y": 790,
+    "z": 1000,
+    "height": 260,
+    "width": 1330,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "RuleID"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.RuleID",
+              "nativeQueryRef": "RuleID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "명령어패턴"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.명령어패턴",
+              "nativeQueryRef": "명령어패턴"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "등록근거_CaseID"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.등록근거_CaseID",
+              "nativeQueryRef": "등록근거_CaseID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "등록일"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.등록일",
+              "nativeQueryRef": "등록일"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "반복발생횟수"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.반복발생횟수",
+              "nativeQueryRef": "반복발생횟수"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_WhitelistRule"
+                    }
+                  },
+                  "Property": "재검토사유"
+                }
+              },
+              "queryRef": "DIM_WhitelistRule.재검토사유",
+              "nativeQueryRef": "재검토사유"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DIM_WhitelistRule"
+                  }
+                },
+                "Property": "반복발생횟수"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "FilterRecheckYOnly001",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DIM_WhitelistRule"
+              }
+            },
+            "Property": "재검토대상여부"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "s",
+              "Entity": "DIM_WhitelistRule",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "s"
+                          }
+                        },
+                        "Property": "재검토대상여부"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Y'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}

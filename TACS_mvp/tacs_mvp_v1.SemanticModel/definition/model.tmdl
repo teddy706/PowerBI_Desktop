@@ -29,6 +29,8 @@ ref table DIM_TACS_Scope_Rule
 ref table FACT_TACS_Exception
 ref table FACT_TACS_History
 ref table FACT_TACS_Escalation
+ref table FACT_JudgmentCase
+ref table DIM_WhitelistRule
 
 ref cultureInfo ko-KR
 

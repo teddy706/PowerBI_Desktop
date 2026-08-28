@@ -49,3 +49,18 @@ relationship FACT_TACS_Escalation_HostID_FACT_Host_HostID
 	fromColumn: FACT_TACS_Escalation.HostID
 	toColumn: FACT_Host.HostID
 
+relationship FACT_JudgmentCase_HostID_FACT_Host_HostID
+	fromColumn: FACT_JudgmentCase.HostID
+	toColumn: FACT_Host.HostID
+
+relationship DIM_WhitelistRule_등록근거_CaseID_FACT_JudgmentCase_CaseID
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: DIM_WhitelistRule.등록근거_CaseID
+	toColumn: FACT_JudgmentCase.CaseID
+
+relationship FACT_JudgmentCase_AssetKey_FACT_Asset_AssetKey
+	isActive: false
+	fromColumn: FACT_JudgmentCase.AssetKey
+	toColumn: FACT_Asset.AssetKey
+

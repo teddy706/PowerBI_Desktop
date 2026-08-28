@@ -1,0 +1,99 @@
+table FACT_JudgmentCase
+	lineageTag: e1418e63-43d3-4403-b4d6-90ebae0b3859
+
+	measure '총 케이스 수' = COUNTROWS(FACT_JudgmentCase)
+		formatString: #,0
+		lineageTag: 3f85fae7-df4b-494e-86f5-e55fd5088a46
+
+	measure 정상판정율 =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_JudgmentCase), FACT_JudgmentCase[2차판정] = "정상"),
+			    COUNTROWS(FACT_JudgmentCase)
+			)
+		formatString: 0.0%
+		lineageTag: cd07f323-e248-4ac9-a094-e32d4787547f
+
+	measure '평균 처리소요일' = AVERAGE(FACT_JudgmentCase[처리소요일])
+		formatString: 0.0
+		lineageTag: 64e87bfa-3a7e-471d-97e2-b8c5092cf2cb
+
+	measure 케이스건수 = COUNTROWS(FACT_JudgmentCase)
+		formatString: #,0
+		lineageTag: 54cb6291-7ffa-4702-97ff-2c20f206b45e
+
+	column CaseID
+		dataType: string
+		isKey
+		lineageTag: eabc3769-65ed-4d4f-a0e5-5f4e7239be5b
+		sourceColumn: CaseID
+
+	column 케이스유형
+		dataType: string
+		lineageTag: bf5fb45c-d224-4f82-8577-5df922128f9e
+		sourceColumn: 케이스유형
+
+	column HostID
+		dataType: string
+		lineageTag: 3f7e135a-0c8a-48fa-8bab-0efcc52b1b05
+		sourceColumn: HostID
+
+	column AssetKey
+		dataType: string
+		lineageTag: a3b8c1ee-e3c9-46bb-bce9-0ab0fb6e91b8
+		sourceColumn: AssetKey
+
+	column 탐지일시
+		dataType: dateTime
+		lineageTag: e9addb04-dc48-47e3-82c2-85286aa9d9fc
+		sourceColumn: 탐지일시
+
+	column 1차판단자
+		dataType: string
+		lineageTag: e61427cc-b1ee-4ca0-8380-fd6903993cc0
+		sourceColumn: 1차판단자
+
+	column 1차소명여부
+		dataType: string
+		lineageTag: 101348c6-82e2-485f-b81c-94093f341422
+		sourceColumn: 1차소명여부
+
+	column 1차소명일
+		dataType: dateTime
+		lineageTag: e4315c46-9498-4980-9302-54c7a95eaf34
+		sourceColumn: 1차소명일
+
+	column 2차판단자
+		dataType: string
+		lineageTag: bb66003c-7777-444b-95c6-e52d4d73a0f4
+		sourceColumn: 2차판단자
+
+	column 2차판정
+		dataType: string
+		lineageTag: b2bb9822-d8d2-4d97-ac31-5f91c5a8e83f
+		sourceColumn: 2차판정
+
+	column 2차판정일
+		dataType: dateTime
+		lineageTag: 112f11ef-26cf-46b7-860b-1bffce00ca51
+		sourceColumn: 2차판정일
+
+	column 처리소요일
+		dataType: int64
+		lineageTag: cf10a1f5-4477-46a5-82dc-074675cd17e8
+		sourceColumn: 처리소요일
+
+	partition FACT_JudgmentCase = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "Foundry_연계_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="판정이력", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"CaseID", type text}, {"케이스유형", type text}, {"HostID", type text}, {"AssetKey", type text},
+				        {"탐지일시", type date}, {"1차판단자", type text}, {"1차소명여부", type text}, {"1차소명일", type date},
+				        {"2차판단자", type text}, {"2차판정", type text}, {"2차판정일", type date}, {"처리소요일", Int64.Type}
+				    })
+				in
+				    Typed
+

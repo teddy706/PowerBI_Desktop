@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "c2e270d78c2ae80276c3",
+  "position": {
+    "x": 40,
+    "y": 300,
+    "z": 1000,
+    "height": 460,
+    "width": 650,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_JudgmentCase"
+                    }
+                  },
+                  "Property": "케이스유형"
+                }
+              },
+              "queryRef": "FACT_JudgmentCase.케이스유형",
+              "nativeQueryRef": "케이스유형",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_JudgmentCase"
+                    }
+                  },
+                  "Property": "케이스건수"
+                }
+              },
+              "queryRef": "FACT_JudgmentCase.케이스건수",
+              "nativeQueryRef": "케이스건수"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FACT_JudgmentCase"
+                  }
+                },
+                "Property": "케이스건수"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "defaultColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F766E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

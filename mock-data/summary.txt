@@ -28,4 +28,15 @@ FACT_TACS_History: 2000건 (최근 90일)
 FACT_TACS_Escalation: 150건
   - SLA 초과(미완료 & 기한경과): 61건
 
+--- Foundry 연계 확장 (판정 결과 + 룰 마스터) ---
+FACT_JudgmentCase: 58건
+  - 유령자산: 10건
+  - 미확인자산: 18건
+  - 이상명령어: 30건
+  - 2차판정 정상: 45건 (78%)
+  - 2차판정 실제위협: 2건 (3%)
+  - 2차판정 예외: 11건 (19%)
+DIM_WhitelistRule: 45건 (2차판정=정상 케이스에서 파생)
+  - 재검토대상(N>=5회): 22건 (49%)
+
 출력 위치: C:\Users\teddy\iCloudDrive\Documents\110_Github\PowerBI_Desktop\mock-data\out
