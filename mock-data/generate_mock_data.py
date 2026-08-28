@@ -169,7 +169,28 @@ WIRELESS_TYPES = ["AP", "WLC", "Wireless-Bridge"]
 TYPE_ABBR = {"Router": "RT", "Switch": "SW", "Firewall": "FW", "L4": "L4", "VPN": "VPN",
              "AP": "AP", "WLC": "WLC", "Wireless-Bridge": "WBR"}
 
-assets_wired, assets_wireless = [], []
+
+def perturb_ip(ip: str) -> str:
+    parts = ip.split(".")
+    old_last = int(parts[-1])
+    new_last = old_last
+    while new_last == old_last:
+        new_last = random.randint(1, 254)
+    parts[-1] = str(new_last)
+    return ".".join(parts)
+
+
+def perturb_name(name: str) -> str:
+    import re
+    m = re.match(r"^([A-Za-z]+)(\d+)$", name)
+    if not m:
+        return name + "-X"
+    letters, digits = m.groups()
+    cut = max(len(letters) - 2, 1)
+    return f"{letters[:cut]}-{letters[cut:]}{digits}"
+
+
+all_asset_rows = []
 for i in range(1, 101):
     wired = i <= 70  # 70 유선 / 30 무선
     dev_type = random.choice(WIRED_TYPES if wired else WIRELESS_TYPES)
@@ -203,8 +224,26 @@ for i in range(1, 101):
         "최근접속일자": TODAY - timedelta(days=stale),
         "등록방법": "자동" if random.random() < 0.9 else "수동",
         "등록일": rand_date(date(2024, 1, 1), date(2026, 6, 30)),
+        "_wired": wired,
     }
-    (assets_wired if wired else assets_wireless).append(row)
+    all_asset_rows.append(row)
+
+# --- FACT_Host와의 겹침 주입: FACT_TACS_Matching이 100건 기준 80/5/5/10을 갖도록 ---
+# (겹침 없이는 Power Query 매칭 로직이 항상 NO_MATCH만 내놓아 검증 대시보드가 무의미해짐)
+overlap_hosts = random.sample(hosts, 90)
+match_hosts, name_match_hosts, ip_match_hosts = overlap_hosts[:80], overlap_hosts[80:85], overlap_hosts[85:90]
+random.shuffle(all_asset_rows)  # 어느 인덱스가 겹칠지 유선/무선에 고르게 섞이도록
+
+for row, h in zip(all_asset_rows[0:80], match_hosts):
+    row["장비명"], row["장비IP"] = h["호스트명"], h["대표IP"]
+for row, h in zip(all_asset_rows[80:85], name_match_hosts):
+    row["장비명"], row["장비IP"] = h["호스트명"], perturb_ip(h["대표IP"])
+for row, h in zip(all_asset_rows[85:90], ip_match_hosts):
+    row["장비명"], row["장비IP"] = perturb_name(h["호스트명"]), h["대표IP"]
+# 나머지 all_asset_rows[90:100] 은 원래 생성된 독립 네트워크 장비명 그대로 → NO_MATCH
+
+assets_wired = [{k: v for k, v in r.items() if k != "_wired"} for r in all_asset_rows if r["_wired"]]
+assets_wireless = [{k: v for k, v in r.items() if k != "_wired"} for r in all_asset_rows if not r["_wired"]]
 
 # ---------------------------------------------------------------------------
 # FACT_TACS (500건, Host와 1:1) + FACT_SecurityCompliance (500건, Host와 1:1)
@@ -303,13 +342,37 @@ write_sheet(ws3, dim_os_rows)
 wb.save(OUT_DIR / "차원테이블_20260828.xlsx")
 
 # ---------------------------------------------------------------------------
-# 요약 리포트
+# 매칭 검증 시뮬레이션 (Power Query 매칭 로직을 파이썬으로 미리 재현해 분포 확인)
 # ---------------------------------------------------------------------------
-print(f"FACT_Host: {len(hosts)}건")
-print(f"  - Linux/Windows: {sum(1 for h in hosts if h['OS계열']=='Linux')}/{sum(1 for h in hosts if h['OS계열']=='Windows')}")
-print(f"  - VM/Physical: {sum(1 for h in hosts if h['Platform']=='VMware')}/{sum(1 for h in hosts if h['Platform']=='Physical')}")
-print(f"FACT_Asset: 유선 {len(assets_wired)}건, 무선 {len(assets_wireless)}건")
-print(f"FACT_TACS: {len(tacs_rows)}건, OS수용Y {sum(1 for t in tacs_rows if t['TACS수용(OS)']=='Y')}건 ({sum(1 for t in tacs_rows if t['TACS수용(OS)']=='Y')/len(tacs_rows):.0%})")
-print(f"FACT_SecurityCompliance: {len(sec_rows)}건, EDR설치Y {sum(1 for s in sec_rows if s['EDR설치']=='Y')}건 ({sum(1 for s in sec_rows if s['EDR설치']=='Y')/len(sec_rows):.0%})")
-print(f"DIM_Service: {len(dim_service_rows)}건, DIM_Department: {len(dim_dept_rows)}건, DIM_OS: {len(dim_os_rows)}건")
-print(f"\n출력 위치: {OUT_DIR}")
+host_by_name = {h["호스트명"]: h for h in hosts}
+host_by_ip = {h["대표IP"]: h for h in hosts}
+match_counts = {"MATCH": 0, "NAME_MATCH": 0, "IP_MATCH": 0, "NO_MATCH": 0}
+for a in all_asset_rows:
+    h_by_name = host_by_name.get(a["장비명"])
+    h_by_ip = host_by_ip.get(a["장비IP"])
+    if h_by_name and h_by_ip and h_by_name["HostID"] == h_by_ip["HostID"]:
+        match_counts["MATCH"] += 1
+    elif h_by_name:
+        match_counts["NAME_MATCH"] += 1
+    elif h_by_ip:
+        match_counts["IP_MATCH"] += 1
+    else:
+        match_counts["NO_MATCH"] += 1
+
+# ---------------------------------------------------------------------------
+# 요약 리포트 (콘솔 한글 인코딩 문제 회피를 위해 UTF-8 파일로 기록)
+# ---------------------------------------------------------------------------
+with open(Path(__file__).parent / "summary.txt", "w", encoding="utf-8") as f:
+    f.write(f"FACT_Host: {len(hosts)}건\n")
+    f.write(f"  - Linux/Windows: {sum(1 for h in hosts if h['OS계열']=='Linux')}/{sum(1 for h in hosts if h['OS계열']=='Windows')}\n")
+    f.write(f"  - VM/Physical: {sum(1 for h in hosts if h['Platform']=='VMware')}/{sum(1 for h in hosts if h['Platform']=='Physical')}\n")
+    f.write(f"FACT_Asset: 유선 {len(assets_wired)}건, 무선 {len(assets_wireless)}건 (합계 {len(all_asset_rows)}건)\n")
+    f.write(f"FACT_TACS: {len(tacs_rows)}건, OS수용Y {sum(1 for t in tacs_rows if t['TACS수용(OS)']=='Y')}건 ({sum(1 for t in tacs_rows if t['TACS수용(OS)']=='Y')/len(tacs_rows):.0%})\n")
+    f.write(f"FACT_SecurityCompliance: {len(sec_rows)}건, EDR설치Y {sum(1 for s in sec_rows if s['EDR설치']=='Y')}건 ({sum(1 for s in sec_rows if s['EDR설치']=='Y')/len(sec_rows):.0%})\n")
+    f.write(f"DIM_Service: {len(dim_service_rows)}건, DIM_Department: {len(dim_dept_rows)}건, DIM_OS: {len(dim_os_rows)}건\n")
+    f.write(f"\nFACT_TACS_Matching 검증 시뮬레이션 (Asset 100건 기준):\n")
+    for k, v in match_counts.items():
+        f.write(f"  {k}: {v}건 ({v/len(all_asset_rows):.0%})\n")
+    f.write(f"\n출력 위치: {OUT_DIR}\n")
+
+print("done - see summary.txt")

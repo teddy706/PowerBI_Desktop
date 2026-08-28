@@ -1,0 +1,15 @@
+FACT_Host: 500건
+  - Linux/Windows: 359/141
+  - VM/Physical: 409/91
+FACT_Asset: 유선 70건, 무선 30건 (합계 100건)
+FACT_TACS: 500건, OS수용Y 445건 (89%)
+FACT_SecurityCompliance: 500건, EDR설치Y 396건 (79%)
+DIM_Service: 12건, DIM_Department: 9건, DIM_OS: 9건
+
+FACT_TACS_Matching 검증 시뮬레이션 (Asset 100건 기준):
+  MATCH: 80건 (80%)
+  NAME_MATCH: 5건 (5%)
+  IP_MATCH: 5건 (5%)
+  NO_MATCH: 10건 (10%)
+
+출력 위치: C:\Users\teddy\iCloudDrive\Documents\110_Github\PowerBI_Desktop\mock-data\out
