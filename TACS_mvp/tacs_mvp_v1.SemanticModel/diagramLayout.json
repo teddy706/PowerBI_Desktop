@@ -4,7 +4,7 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 1999.1803278688526,
+        "x": 890.223805942806,
         "y": 0
       },
       "nodes": [
@@ -111,10 +111,127 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2556,
+            "y": 0
+          },
+          "nodeIndex": "FACT_TACS_Verification",
+          "nodeLineageTag": "89149fd2-0e0b-490c-b2bc-7cfaa03169e1",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2840,
+            "y": 62
+          },
+          "nodeIndex": "TACS_원본추출",
+          "nodeLineageTag": "39824d12-6344-49a9-a7bb-357b35501f68",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3124,
+            "y": 26
+          },
+          "nodeIndex": "DIM_TACS_Scope_Rule",
+          "nodeLineageTag": "867d810f-06e2-4fd6-8023-2cba10b9119b",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3408,
+            "y": 14
+          },
+          "nodeIndex": "FACT_TACS_Escalation",
+          "nodeLineageTag": "8c01f08b-79d6-4f88-8b99-47c067dd0a13",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3692,
+            "y": 14
+          },
+          "nodeIndex": "FACT_TACS_Exception",
+          "nodeLineageTag": "681ee1f5-1355-4116-95a7-644c2d9aedb4",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3976,
+            "y": 2
+          },
+          "nodeIndex": "FACT_TACS_History",
+          "nodeLineageTag": "93fa43a8-a519-4633-bb06-571f4e7d6f22",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4260,
+            "y": 0
+          },
+          "nodeIndex": "FACT_JudgmentCase",
+          "nodeLineageTag": "e1418e63-43d3-4403-b4d6-90ebae0b3859",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4544,
+            "y": 26
+          },
+          "nodeIndex": "DIM_WhitelistRule",
+          "nodeLineageTag": "11ec0ef5-9525-45b2-b952-7edcc1ea5381",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4828,
+            "y": 86
+          },
+          "nodeIndex": "보안지표비교",
+          "nodeLineageTag": "51bd4882-68b2-4962-86ca-27a4f3db6117",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "모든 테이블",
-      "zoomValue": 122,
+      "zoomValue": 48.86411676435749,
       "pinKeyFieldsToTop": false,
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,

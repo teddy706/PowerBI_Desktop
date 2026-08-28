@@ -300,7 +300,7 @@ table FACT_Host
 		sourceColumn: 서비스구분
 
 	column TACS대상여부 =
-			VAR IsLegacy = (FACT_Host[OS] = "RHEL" && FACT_Host[OS버전] = "7.9") || (FACT_Host[OS] = "Windows Server" && FACT_Host[OS버전] = "2012 R2")
+			VAR IsLegacy = RELATED(DIM_OS[EOS대상여부]) = "Y"
 			RETURN
 			IF(
 			    IsLegacy,
@@ -313,6 +313,11 @@ table FACT_Host
 			)
 		dataType: string
 		lineageTag: cbdab916-75fa-4efe-96f2-a3c98dde6556
+
+	column OS복합키 = FACT_Host[OS] & "|" & FACT_Host[OS버전]
+		dataType: string
+		isHidden
+		lineageTag: 11254b95-c0ac-4aba-a33f-2e737198db71
 
 	partition FACT_Host = m
 		mode: import

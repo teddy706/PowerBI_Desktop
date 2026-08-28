@@ -64,3 +64,7 @@ relationship FACT_JudgmentCase_AssetKey_FACT_Asset_AssetKey
 	fromColumn: FACT_JudgmentCase.AssetKey
 	toColumn: FACT_Asset.AssetKey
 
+relationship FACT_Host_OS복합키_DIM_OS_OS복합키
+	fromColumn: FACT_Host.OS복합키
+	toColumn: DIM_OS.OS복합키
+

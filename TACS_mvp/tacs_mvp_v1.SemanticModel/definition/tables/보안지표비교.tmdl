@@ -6,10 +6,12 @@ table 보안지표비교
 		lineageTag: eb3b4531-678a-45a0-8abe-7cbd65f14276
 
 	column 지표명
+		lineageTag: 10fdcbe5-4f1b-4568-9c36-948ee998a151
 		isNameInferred
 		sourceColumn: [지표명]
 
 	column 비율
+		lineageTag: 62bad594-8671-49e2-9701-5b527800b6e6
 		isNameInferred
 		sourceColumn: [비율]
 

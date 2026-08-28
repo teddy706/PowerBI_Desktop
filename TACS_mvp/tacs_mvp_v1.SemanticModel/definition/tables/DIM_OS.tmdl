@@ -27,6 +27,11 @@ table DIM_OS
 		lineageTag: 578fff59-b3e4-4f54-893f-e4e7acf9b660
 		sourceColumn: EOS대상여부
 
+	column OS복합키 = DIM_OS[OS명] & "|" & DIM_OS[버전]
+		dataType: string
+		isHidden
+		lineageTag: 3a5f6c41-1b96-4323-b1f0-1b845556fe44
+
 	partition DIM_OS = m
 		mode: import
 		source =
