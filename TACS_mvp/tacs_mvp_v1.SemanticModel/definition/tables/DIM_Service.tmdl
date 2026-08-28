@@ -1,0 +1,43 @@
+table DIM_Service
+	lineageTag: 37adc5d9-1f79-4ea5-91ab-ded094a2fc78
+
+	column ServiceKey
+		dataType: string
+		isKey
+		lineageTag: e8cedbfb-dd9a-4259-a4a1-d2711ca53929
+		sourceColumn: ServiceKey
+
+	column 표준서비스
+		dataType: string
+		lineageTag: e46146df-234b-4b6b-9f6a-4f75d0f8f541
+		sourceColumn: 표준서비스
+
+	column 표준서비스명
+		dataType: string
+		lineageTag: 6d94ac1f-d3b0-42bc-b29a-13e8f4e4da0c
+		sourceColumn: 표준서비스명
+
+	column 단위서비스명
+		dataType: string
+		lineageTag: a578a139-d737-46ab-8196-c45e92a86602
+		sourceColumn: 단위서비스명
+
+	column 서비스등급대표값
+		dataType: string
+		lineageTag: 3fe096dc-7248-49b1-b2a7-b1ba20549a29
+		sourceColumn: 서비스등급대표값
+
+	partition DIM_Service = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "차원테이블_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="DIM_Service", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"ServiceKey", type text}, {"표준서비스", type text}, {"표준서비스명", type text},
+				        {"단위서비스명", type text}, {"서비스등급대표값", type text}
+				    })
+				in
+				    Typed
+

@@ -1,0 +1,128 @@
+table FACT_Asset
+	lineageTag: 3c0fbbf5-79da-463e-b163-acc6fd5438dc
+
+	column AssetKey
+		dataType: string
+		isKey
+		lineageTag: d298821a-7942-40f7-9014-dad3b981db68
+		sourceColumn: AssetKey
+
+	column SourceType
+		dataType: string
+		lineageTag: cce32d2f-f288-40c7-b774-b1f2bb1efa5f
+		sourceColumn: SourceType
+
+	column 장비그룹
+		dataType: string
+		lineageTag: bb4b9916-5165-4d59-8c6f-42a68b2dec58
+		sourceColumn: 장비그룹
+
+	column 장비명
+		dataType: string
+		lineageTag: 865c0ade-8214-40c5-8101-d148830347f4
+		sourceColumn: 장비명
+
+	column 장비IP
+		dataType: string
+		lineageTag: 3c159b33-607a-47a2-b27c-34f80d58dc1a
+		sourceColumn: 장비IP
+
+	column 장비분류
+		dataType: string
+		lineageTag: 4659416b-a817-401d-96da-9ab85bbb6250
+		sourceColumn: 장비분류
+
+	column 장비유형
+		dataType: string
+		lineageTag: e07b503b-56ec-4dd4-b675-5f56828893b2
+		sourceColumn: 장비유형
+
+	column 서비스구분
+		dataType: string
+		lineageTag: f7eba3d1-ef10-4582-8b66-879c8bde70b2
+		sourceColumn: 서비스구분
+
+	column 자산관리자
+		dataType: string
+		lineageTag: f93b01de-a598-44ef-ada2-b650d6f1fb65
+		sourceColumn: 자산관리자
+
+	column OS계열
+		dataType: string
+		lineageTag: 4fe271d0-cad0-4d73-b886-78caf0833ec2
+		sourceColumn: OS계열
+
+	column OS
+		dataType: string
+		lineageTag: 9d97151d-24b7-4b4f-ac2d-66ce5dc9709a
+		sourceColumn: OS
+
+	column 버전
+		dataType: string
+		lineageTag: 2de0b17f-623d-4a7f-8e36-fa74f2b6dc79
+		sourceColumn: 버전
+
+	column 보안기능
+		dataType: string
+		lineageTag: 76e417bf-4fc0-4380-b6b4-7f32fbfd754a
+		sourceColumn: 보안기능
+
+	column 동기화사용
+		dataType: string
+		lineageTag: facfa928-5e08-4d38-ac34-c2eea59905d0
+		sourceColumn: 동기화사용
+
+	column 동기화그룹명
+		dataType: string
+		lineageTag: 6559b063-b78d-41e9-af55-136074bf57c8
+		sourceColumn: 동기화그룹명
+
+	column 장비설명
+		dataType: string
+		lineageTag: 9cac375f-cfde-4b08-bcd2-09d88622bc38
+		sourceColumn: 장비설명
+
+	column 미접속일수
+		dataType: int64
+		lineageTag: 8ca79336-f20e-41a1-b7dd-15e70ec40009
+		sourceColumn: 미접속일수
+
+	column 최근접속일자
+		dataType: dateTime
+		lineageTag: 8476384f-67e0-4b1b-8773-15106eae8ee4
+		sourceColumn: 최근접속일자
+
+	column 등록방법
+		dataType: string
+		lineageTag: 14fd2705-ef3c-4af7-9ed0-bd0013f7329b
+		sourceColumn: 등록방법
+
+	column 등록일
+		dataType: dateTime
+		lineageTag: 2bc25790-c0ae-441d-9bf5-dcf1b0f47b0d
+		sourceColumn: 등록일
+
+	partition FACT_Asset = m
+		mode: import
+		source =
+				let
+				    LoadSheet = (fileName as text) as table =>
+				        let
+				            Source = Excel.Workbook(File.Contents(SourceFolder & fileName), null, true),
+				            Sheet = Source{[Item="장비목록", Kind="Sheet"]}[Data],
+				            Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true])
+				        in
+				            Promoted,
+				    Wired = LoadSheet("장비 목록_유선_20260828.xlsx"),
+				    Wireless = LoadSheet("장비 목록_무선_20260828.xlsx"),
+				    Combined = Table.Combine({Wired, Wireless}),
+				    Typed = Table.TransformColumnTypes(Combined, {
+				        {"AssetKey", type text}, {"SourceType", type text}, {"장비그룹", type text},
+				        {"장비명", type text}, {"장비IP", type text}, {"장비분류", type text}, {"장비유형", type text},
+				        {"서비스구분", type text}, {"자산관리자", type text}, {"OS계열", type text}, {"OS", type text}, {"버전", type text},
+				        {"보안기능", type text}, {"동기화사용", type text}, {"동기화그룹명", type text}, {"장비설명", type text},
+				        {"미접속일수", Int64.Type}, {"최근접속일자", type date}, {"등록방법", type text}, {"등록일", type datetime}
+				    })
+				in
+				    Typed
+

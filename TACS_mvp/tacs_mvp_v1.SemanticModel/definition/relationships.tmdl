@@ -1,0 +1,28 @@
+relationship FACT_TACS_HostID_FACT_Host_HostID
+	fromColumn: FACT_TACS.HostID
+	toColumn: FACT_Host.HostID
+
+relationship FACT_SecurityCompliance_HostID_FACT_Host_HostID
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: FACT_SecurityCompliance.HostID
+	toColumn: FACT_Host.HostID
+
+relationship FACT_TACS_Matching_AssetKey_FACT_Asset_AssetKey
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: FACT_TACS_Matching.AssetKey
+	toColumn: FACT_Asset.AssetKey
+
+relationship FACT_TACS_Matching_HostID_FACT_Host_HostID
+	fromColumn: FACT_TACS_Matching.HostID
+	toColumn: FACT_Host.HostID
+
+relationship FACT_Host_단위서비스명_DIM_Service_단위서비스명
+	fromColumn: FACT_Host.단위서비스명
+	toColumn: DIM_Service.단위서비스명
+
+relationship FACT_Host_호스트운용부서_DIM_Department_부서명
+	fromColumn: FACT_Host.호스트운용부서
+	toColumn: DIM_Department.부서명
+

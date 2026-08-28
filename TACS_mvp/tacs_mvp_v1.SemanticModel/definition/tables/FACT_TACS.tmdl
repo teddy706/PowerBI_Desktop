@@ -1,0 +1,87 @@
+table FACT_TACS
+	lineageTag: c6ccf854-5955-4dca-acda-d6fe4a07d683
+
+	column HostID
+		dataType: string
+		lineageTag: 4d4002e0-b496-4f40-a686-f24e2ad78a24
+		sourceColumn: HostID
+
+	column 호스트명
+		dataType: string
+		lineageTag: 82a6f46c-b777-412d-8df5-ecdd7b8bba26
+		sourceColumn: 호스트명
+
+	column 장치ID
+		dataType: string
+		isKey
+		lineageTag: 9b178db6-5f65-4a17-ac42-eafde9b9aef8
+		sourceColumn: 장치ID
+
+	column 운영부서
+		dataType: string
+		lineageTag: 833c9a60-7c37-4eb3-8138-ab9a108a9882
+		sourceColumn: 운영부서
+
+	column 표준서비스명
+		dataType: string
+		lineageTag: 4c3d5dfb-241a-4321-85cd-d434c6fbb8f3
+		sourceColumn: 표준서비스명
+
+	column 단위서비스명
+		dataType: string
+		lineageTag: 22ccd3bb-5497-48ae-8b81-a34be1965687
+		sourceColumn: 단위서비스명
+
+	column TACS수용(OS)
+		dataType: string
+		lineageTag: 3a276e09-94e9-4fe2-8a68-f060b5454631
+		sourceColumn: TACS수용(OS)
+
+	column TACS수용(DB)
+		dataType: string
+		lineageTag: 857d3b82-25a9-4a13-828a-90216d9c098f
+		sourceColumn: TACS수용(DB)
+
+	column TACS수용(OS)예외사유
+		dataType: string
+		lineageTag: cfe37d8e-21ca-4595-9aaf-c581d8e02a2d
+		sourceColumn: TACS수용(OS)예외사유
+
+	column TACS수용(DB)예외사유
+		dataType: string
+		lineageTag: fb0c96c8-109e-45f4-a97c-710598b6350d
+		sourceColumn: TACS수용(DB)예외사유
+
+	column 운영상태
+		dataType: string
+		lineageTag: e094b7e6-e618-43ae-917c-fac4dfff4fd4
+		sourceColumn: 운영상태
+
+	column 설비상태
+		dataType: string
+		lineageTag: 525d4aec-6d0e-4d0b-8048-65779795e88a
+		sourceColumn: 설비상태
+
+	column VM여부
+		dataType: string
+		lineageTag: 222ef5eb-bd81-4103-9d1a-c540cba6fa56
+		sourceColumn: VM여부
+
+	partition FACT_TACS = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "지역NW운용본부_20260828.xlsx"), null, true),
+				    RegionSheets = Table.SelectRows(Source, each [Kind] = "Sheet" and [Name] <> "보안통제"),
+				    PromotedTables = List.Transform(RegionSheets[Data], each Table.PromoteHeaders(_, [PromoteAllScalars=true])),
+				    Combined = Table.Combine(PromotedTables),
+				    Typed = Table.TransformColumnTypes(Combined, {
+				        {"HostID", type text}, {"호스트명", type text}, {"장치ID", type text}, {"운영부서", type text},
+				        {"표준서비스명", type text}, {"단위서비스명", type text},
+				        {"TACS수용(OS)", type text}, {"TACS수용(DB)", type text},
+				        {"TACS수용(OS)예외사유", type text}, {"TACS수용(DB)예외사유", type text},
+				        {"운영상태", type text}, {"설비상태", type text}, {"VM여부", type text}
+				    })
+				in
+				    Typed
+

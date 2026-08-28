@@ -1,0 +1,107 @@
+table FACT_SecurityCompliance
+	lineageTag: 3b992afd-8127-437b-8173-bc8ceaeac21b
+
+	column HostID
+		dataType: string
+		isKey
+		lineageTag: 7ba13063-57ca-4c13-8707-b29c2f7e6e53
+		sourceColumn: HostID
+
+	column 웹쉘Agent설치
+		dataType: string
+		lineageTag: 694496b8-80bd-4828-ab38-10feb7af2f3c
+		sourceColumn: 웹쉘Agent설치
+
+	column 웹쉘정책설정
+		dataType: string
+		lineageTag: 15da509e-6cfe-4fc4-9542-26cc186782e4
+		sourceColumn: 웹쉘정책설정
+
+	column 서버백신설치
+		dataType: string
+		lineageTag: d2d847f3-a696-4807-9b70-6c3beba5c6a8
+		sourceColumn: 서버백신설치
+
+	column 서버백신실시간감시
+		dataType: string
+		lineageTag: 7b07cbb0-837b-460f-adb7-24f90ce13d5b
+		sourceColumn: 서버백신실시간감시
+
+	column 서버백신HIPS
+		dataType: string
+		lineageTag: 9066f5a0-62aa-424e-af73-025e83e882ac
+		sourceColumn: 서버백신HIPS
+
+	column 서버백신FullScan
+		dataType: string
+		lineageTag: 3f4c46af-1113-4ede-bdc0-3888195f9fb3
+		sourceColumn: 서버백신FullScan
+
+	column EDR설치
+		dataType: string
+		lineageTag: 752ea1b4-4832-4ef8-a953-593b52de0466
+		sourceColumn: EDR설치
+
+	column EDRFullScan
+		dataType: string
+		lineageTag: b9dac0aa-12d5-4ba3-bfb7-6ffeea945186
+		sourceColumn: EDRFullScan
+
+	column 중앙로그관리수용
+		dataType: string
+		lineageTag: 829cfe82-baa6-4152-ab00-98156adacf50
+		sourceColumn: 중앙로그관리수용
+
+	column 로그보관기간설정
+		dataType: string
+		lineageTag: 823dab06-5a08-4fd6-8982-cabdb45f57c9
+		sourceColumn: 로그보관기간설정
+
+	column ACL설정
+		dataType: string
+		lineageTag: e143337a-8a3b-4155-97c9-590fdcf86223
+		sourceColumn: ACL설정
+
+	column EOS해소여부
+		dataType: string
+		lineageTag: 419f0bd3-d0bd-4a02-890a-0a8f59480cd8
+		sourceColumn: EOS해소여부
+
+	column SMP진단
+		dataType: string
+		lineageTag: 1b50f3a7-935d-48d9-a77f-70353d8b63ae
+		sourceColumn: SMP진단
+
+	column SMP조치
+		dataType: string
+		lineageTag: 163762f8-76bd-4d1c-a787-4f1cd1c79b41
+		sourceColumn: SMP조치
+
+	column 개인정보암호화
+		dataType: string
+		lineageTag: 1e2074cf-c727-4d55-b901-a693aad14767
+		sourceColumn: 개인정보암호화
+
+	column 개인정보암호화일정
+		dataType: string
+		lineageTag: 7d39ccf1-77e3-4b9d-b702-48b0aecfa34e
+		sourceColumn: 개인정보암호화일정
+
+	partition FACT_SecurityCompliance = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "지역NW운용본부_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="보안통제", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"HostID", type text}, {"웹쉘Agent설치", type text}, {"웹쉘정책설정", type text},
+				        {"서버백신설치", type text}, {"서버백신실시간감시", type text}, {"서버백신HIPS", type text}, {"서버백신FullScan", type text},
+				        {"EDR설치", type text}, {"EDRFullScan", type text},
+				        {"중앙로그관리수용", type text}, {"로그보관기간설정", type text}, {"ACL설정", type text},
+				        {"EOS해소여부", type text}, {"SMP진단", type text}, {"SMP조치", type text},
+				        {"개인정보암호화", type text}, {"개인정보암호화일정", type text}
+				    })
+				in
+				    Typed
+

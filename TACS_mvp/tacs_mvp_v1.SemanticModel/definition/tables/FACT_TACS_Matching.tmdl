@@ -1,0 +1,76 @@
+table FACT_TACS_Matching
+	lineageTag: 307ccf49-cc07-4b2b-81a6-96646dbb10cb
+
+	column AssetKey
+		dataType: string
+		isKey
+		lineageTag: d1ab5206-c488-4d17-8b7d-1648e2ed0c8a
+		sourceColumn: AssetKey
+
+	column 장비명
+		dataType: string
+		lineageTag: b26c305d-9158-45a3-b139-f8224c9238f4
+		sourceColumn: 장비명
+
+	column 장비IP
+		dataType: string
+		lineageTag: bf33a1a7-61c4-4842-89c6-97f5856008b0
+		sourceColumn: 장비IP
+
+	column HostID
+		dataType: string
+		lineageTag: e9418fcf-00b9-4b9d-81c2-6a3f454bb42d
+		sourceColumn: HostID
+
+	column 호스트명
+		dataType: string
+		lineageTag: 3cb0fc7a-460e-4c48-a344-0be089cf9d4d
+		sourceColumn: 호스트명
+
+	column 대표IP
+		dataType: string
+		lineageTag: b2c2a7b6-2a08-4f35-bf85-7b66d4881a11
+		sourceColumn: 대표IP
+
+	column MatchStatus
+		dataType: string
+		lineageTag: a660d435-4252-4222-a274-2c5543008b79
+		sourceColumn: MatchStatus
+
+	column MatchScore
+		dataType: double
+		lineageTag: 8c6c2b74-2f0e-4017-9b59-ecf79de398f2
+		sourceColumn: MatchScore
+
+	partition FACT_TACS_Matching = m
+		mode: import
+		source =
+				let
+				    MergedByName = Table.NestedJoin(FACT_Asset, {"장비명"}, FACT_Host, {"호스트명"}, "HostByName", JoinKind.LeftOuter),
+				    ExpandedByName = Table.ExpandTableColumn(MergedByName, "HostByName", {"HostID", "호스트명", "대표IP"}, {"NameMatch_HostID", "NameMatch_호스트명", "NameMatch_대표IP"}),
+				    MergedByIP = Table.NestedJoin(ExpandedByName, {"장비IP"}, FACT_Host, {"대표IP"}, "HostByIP", JoinKind.LeftOuter),
+				    ExpandedByIP = Table.ExpandTableColumn(MergedByIP, "HostByIP", {"HostID", "호스트명", "대표IP"}, {"IPMatch_HostID", "IPMatch_호스트명", "IPMatch_대표IP"}),
+				    Classified = Table.AddColumn(ExpandedByIP, "MatchStatus", each
+				        if [NameMatch_HostID] <> null and [IPMatch_HostID] <> null and [NameMatch_HostID] = [IPMatch_HostID] then "MATCH"
+				        else if [NameMatch_HostID] <> null then "NAME_MATCH"
+				        else if [IPMatch_HostID] <> null then "IP_MATCH"
+				        else "NO_MATCH",
+				        type text),
+				    WithMatchScore = Table.AddColumn(Classified, "MatchScore", each
+				        if [MatchStatus] = "MATCH" then 1.0
+				        else if [MatchStatus] = "NAME_MATCH" or [MatchStatus] = "IP_MATCH" then 0.5
+				        else 0.0,
+				        type number),
+				    WithHostID = Table.AddColumn(WithMatchScore, "HostID", each
+				        if [NameMatch_HostID] <> null then [NameMatch_HostID] else [IPMatch_HostID],
+				        type text),
+				    WithHostName = Table.AddColumn(WithHostID, "호스트명", each
+				        if [NameMatch_호스트명] <> null then [NameMatch_호스트명] else [IPMatch_호스트명],
+				        type text),
+				    WithRepIP = Table.AddColumn(WithHostName, "대표IP", each
+				        if [IPMatch_대표IP] <> null then [IPMatch_대표IP] else [NameMatch_대표IP],
+				        type text),
+				    Final = Table.SelectColumns(WithRepIP, {"AssetKey", "장비명", "장비IP", "HostID", "호스트명", "대표IP", "MatchStatus", "MatchScore"})
+				in
+				    Final
+

@@ -1,0 +1,43 @@
+table DIM_OS
+	lineageTag: 8d5be09d-fb4d-4b54-bbb5-45286028995d
+
+	column OSKey
+		dataType: string
+		isKey
+		lineageTag: 72a1d39d-171a-4fba-aa57-628cc9969b68
+		sourceColumn: OSKey
+
+	column OS계열
+		dataType: string
+		lineageTag: 03ef1a75-ecb9-4c36-8188-840084bb15fd
+		sourceColumn: OS계열
+
+	column OS명
+		dataType: string
+		lineageTag: e9c3408e-c2d5-4bbb-9109-d1866800e7f0
+		sourceColumn: OS명
+
+	column 버전
+		dataType: string
+		lineageTag: 0aa4360c-b715-46c1-a470-98e44ba2450d
+		sourceColumn: 버전
+
+	column EOS대상여부
+		dataType: string
+		lineageTag: 578fff59-b3e4-4f54-893f-e4e7acf9b660
+		sourceColumn: EOS대상여부
+
+	partition DIM_OS = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "차원테이블_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="DIM_OS", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"OSKey", type text}, {"OS계열", type text}, {"OS명", type text},
+				        {"버전", type text}, {"EOS대상여부", type text}
+				    })
+				in
+				    Typed
+

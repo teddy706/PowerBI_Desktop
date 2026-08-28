@@ -9,7 +9,16 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table FACT_Host
+ref table FACT_Asset
+ref table FACT_TACS
+ref table DIM_Service
+ref table DIM_Department
+ref table DIM_OS
+ref table FACT_SecurityCompliance
+ref table FACT_TACS_Matching
 
 ref cultureInfo ko-KR
 

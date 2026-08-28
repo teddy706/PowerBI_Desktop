@@ -1,0 +1,25 @@
+table DIM_Department
+	lineageTag: 4d354403-5633-4b6c-8994-6cf52c80d785
+
+	column DepartmentKey
+		dataType: string
+		isKey
+		lineageTag: 0d400daf-3867-473f-8615-4cdde6d939f1
+		sourceColumn: DepartmentKey
+
+	column 부서명
+		dataType: string
+		lineageTag: f0e2c6d0-0157-4cb9-bdca-71e7f8bf3f6d
+		sourceColumn: 부서명
+
+	partition DIM_Department = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "차원테이블_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="DIM_Department", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"DepartmentKey", type text}, {"부서명", type text}})
+				in
+				    Typed
+
