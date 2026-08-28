@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "4d9535c3456de2561ca5",
+  "displayName": "보안통제 준수율",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920
+}

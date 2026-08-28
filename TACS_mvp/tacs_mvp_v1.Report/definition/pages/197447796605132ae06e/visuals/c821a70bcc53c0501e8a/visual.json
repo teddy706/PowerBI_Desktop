@@ -1,0 +1,123 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "c821a70bcc53c0501e8a",
+  "position": {
+    "x": 40,
+    "y": 100,
+    "z": 1000,
+    "height": 900,
+    "width": 1200,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "표준서비스명"
+                }
+              },
+              "queryRef": "FACT_Host.표준서비스명",
+              "nativeQueryRef": "표준서비스명",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "단위서비스명"
+                }
+              },
+              "queryRef": "FACT_Host.단위서비스명",
+              "nativeQueryRef": "단위서비스명",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "PO부서"
+                }
+              },
+              "queryRef": "FACT_Host.PO부서",
+              "nativeQueryRef": "PO부서",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "호스트운용부서"
+                }
+              },
+              "queryRef": "FACT_Host.호스트운용부서",
+              "nativeQueryRef": "호스트운용부서",
+              "active": false
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "총 호스트 수"
+                }
+              },
+              "queryRef": "FACT_Host.총 호스트 수",
+              "nativeQueryRef": "총 호스트 수"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

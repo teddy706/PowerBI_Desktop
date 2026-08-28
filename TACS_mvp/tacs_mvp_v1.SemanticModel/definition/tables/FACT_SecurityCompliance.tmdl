@@ -1,6 +1,38 @@
 table FACT_SecurityCompliance
 	lineageTag: 3b992afd-8127-437b-8173-bc8ceaeac21b
 
+	measure '웹쉘 준수율' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[웹쉘Agent설치] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: 6052a271-bc5a-4165-9f2f-91ba6cd40ef5
+
+	measure '백신 준수율' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[서버백신설치] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: bc2a5206-0966-4a75-acf5-72efac49d12b
+
+	measure 'SMP 진단율' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[SMP진단] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: 7dd52ba5-7d38-4d4f-894f-70b63ae41bb9
+
+	measure 'ACL 설정율' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[ACL설정] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: 3e85157a-03b9-4d93-87f8-cb549cbf3e30
+
 	column HostID
 		dataType: string
 		isKey
