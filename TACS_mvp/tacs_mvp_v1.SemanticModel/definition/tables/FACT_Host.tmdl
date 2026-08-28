@@ -25,6 +25,14 @@ table FACT_Host
 		formatString: 0.0%
 		lineageTag: e1e573dd-4cef-439a-8d61-70189868ac79
 
+	measure '총 호스트 수' = COUNTROWS(FACT_Host)
+		formatString: #,0
+		lineageTag: 33c22ead-72cd-4e35-9221-6b527d7ab127
+
+	measure '총 장비 수' = COUNTROWS(FACT_Asset)
+		formatString: #,0
+		lineageTag: 4a440c59-e4e1-4561-858a-e643d2f3df3d
+
 	column HostID
 		dataType: string
 		isKey
