@@ -1,0 +1,92 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "d4b7edd44e1e5cff7eea",
+  "position": {
+    "x": 980,
+    "y": 100,
+    "z": 1000,
+    "height": 460,
+    "width": 520,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_Host"
+                    }
+                  },
+                  "Property": "호스트운용부서"
+                }
+              },
+              "queryRef": "FACT_Host.호스트운용부서",
+              "nativeQueryRef": "호스트운용부서",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "미확인 건수"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.미확인 건수",
+              "nativeQueryRef": "미확인 건수"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FACT_TACS_Verification"
+                  }
+                },
+                "Property": "미확인 건수"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "defaultColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#DC2626'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

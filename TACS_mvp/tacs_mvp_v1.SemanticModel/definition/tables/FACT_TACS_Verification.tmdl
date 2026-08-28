@@ -1,0 +1,107 @@
+table FACT_TACS_Verification
+	lineageTag: 89149fd2-0e0b-490c-b2bc-7cfaa03169e1
+
+	measure 'TACS 미확인률' =
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(FACT_TACS_Verification),
+			        FACT_TACS_Verification[VerifyStatus] = "UNVERIFIED"
+			    ),
+			    CALCULATE(
+			        COUNTROWS(FACT_TACS_Verification),
+			        FACT_TACS_Verification[서버관리_TACS등록여부] = "Y"
+			    )
+			)
+		formatString: 0.0%
+		lineageTag: 5d478c57-bb74-4a61-9ea0-95fe47db20c9
+
+	measure 'TACS 등록 신뢰도' = 1 - [TACS 미확인률]
+		formatString: 0.0%
+		lineageTag: 3f904787-041f-4d3c-91ec-fe1488d9f1df
+
+	measure 검증건수 = COUNTROWS(FACT_TACS_Verification)
+		formatString: #,0
+		lineageTag: f948c91a-64be-47c8-b639-2b9f0fdfa185
+
+	measure '미확인 건수' = CALCULATE(COUNTROWS(FACT_TACS_Verification), FACT_TACS_Verification[VerifyStatus] = "UNVERIFIED")
+		formatString: #,0
+		lineageTag: 6a7e24c5-75cf-4f6a-a844-04aad4b9afd5
+
+	column HostID
+		dataType: string
+		isKey
+		lineageTag: 4538e125-9ee8-4335-8816-9186912b177b
+		sourceColumn: HostID
+
+	column 호스트명
+		dataType: string
+		lineageTag: 447ec208-f7bb-4401-9702-9ff97b5ea3c0
+		sourceColumn: 호스트명
+
+	column 대표IP
+		dataType: string
+		lineageTag: 9cac6e49-7508-4750-a2d2-04846585ec3c
+		sourceColumn: 대표IP
+
+	column 서버관리_TACS등록여부
+		dataType: string
+		lineageTag: e5276855-63c6-4ef2-9be5-a649cc335fb1
+		sourceColumn: 서버관리_TACS등록여부
+
+	column TACS원본_장비명
+		dataType: string
+		lineageTag: 6ff27a45-9237-42f7-b15a-850a49e985e6
+		sourceColumn: TACS원본_장비명
+
+	column TACS원본_IP
+		dataType: string
+		lineageTag: 43146d01-c233-4758-b413-cee5928f1363
+		sourceColumn: TACS원본_IP
+
+	column VerifyStatus
+		dataType: string
+		lineageTag: 55fa4dec-ca6b-45e8-9407-09c21c8dd200
+		sourceColumn: VerifyStatus
+
+	column 불일치사유
+		dataType: string
+		lineageTag: 021f1859-1036-4000-9dd2-c48380f297e0
+		sourceColumn: 불일치사유
+
+	column VerifyScore
+		dataType: double
+		lineageTag: f9c36e19-d22f-45e0-856a-4ea7ffd14186
+		sourceColumn: VerifyScore
+
+	partition FACT_TACS_Verification = m
+		mode: import
+		source =
+				let
+				    Merged = Table.NestedJoin(FACT_Host, {"HostID"}, TACS_원본추출, {"HostID"}, "TACS", JoinKind.LeftOuter),
+				    Expanded = Table.ExpandTableColumn(Merged, "TACS", {"HostID", "장비명", "IP"}, {"TACS_HostID", "TACS원본_장비명", "TACS원본_IP"}),
+				    Classified = Table.AddColumn(Expanded, "VerifyStatus", each
+				        if [TACS_HostID] <> null then
+				            if [호스트명] = [TACS원본_장비명] and [대표IP] = [TACS원본_IP] then "VERIFIED"
+				            else if [호스트명] = [TACS원본_장비명] then "VERIFIED_NAME_ONLY"
+				            else if [대표IP] = [TACS원본_IP] then "VERIFIED_IP_ONLY"
+				            else "UNVERIFIED"
+				        else if [서버관리_TACS등록여부] = "Y" then "UNVERIFIED"
+				        else null,
+				        type text),
+				    WithReason = Table.AddColumn(Classified, "불일치사유", each
+				        if [VerifyStatus] = "VERIFIED_NAME_ONLY" then "IP_MISMATCH"
+				        else if [VerifyStatus] = "VERIFIED_IP_ONLY" then "NAME_MISMATCH"
+				        else if [VerifyStatus] = "UNVERIFIED" then "NOT_FOUND"
+				        else null,
+				        type text),
+				    WithScore = Table.AddColumn(WithReason, "VerifyScore", each
+				        if [VerifyStatus] = "VERIFIED" then 1.0
+				        else if [VerifyStatus] = "VERIFIED_NAME_ONLY" or [VerifyStatus] = "VERIFIED_IP_ONLY" then 0.5
+				        else if [VerifyStatus] = "UNVERIFIED" then 0.0
+				        else null,
+				        type number),
+				    Final = Table.SelectColumns(WithScore,
+				        {"HostID", "호스트명", "대표IP", "서버관리_TACS등록여부", "TACS원본_장비명", "TACS원본_IP", "VerifyStatus", "불일치사유", "VerifyScore"})
+				in
+				    Final
+

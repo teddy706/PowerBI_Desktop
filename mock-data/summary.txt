@@ -12,4 +12,11 @@ FACT_TACS_Matching 검증 시뮬레이션 (Asset 100건 기준):
   IP_MATCH: 5건 (5%)
   NO_MATCH: 10건 (10%)
 
+FACT_TACS_Verification 검증 시뮬레이션 (Host 500건 기준, TACS원본추출 432건):
+  VERIFIED: 382건 (76%)
+  VERIFIED_NAME_ONLY: 27건 (5%)
+  VERIFIED_IP_ONLY: 23건 (5%)
+  UNVERIFIED: 18건 (4%)
+  해당없음(N): 50건 (10%)
+
 출력 위치: C:\Users\teddy\iCloudDrive\Documents\110_Github\PowerBI_Desktop\mock-data\out

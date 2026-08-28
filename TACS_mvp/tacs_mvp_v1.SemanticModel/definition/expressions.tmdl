@@ -2,3 +2,5 @@
 expression SourceFolder = "C:\Users\teddy\iCloudDrive\Documents\110_Github\PowerBI_Desktop\mock-data\out\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 430f3c76-26c2-4190-8898-1e4f121e8053
 
+	annotation PBI_ResultType = Text
+

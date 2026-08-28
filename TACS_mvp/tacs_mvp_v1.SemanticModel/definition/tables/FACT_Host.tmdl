@@ -37,147 +37,250 @@ table FACT_Host
 		dataType: string
 		isKey
 		lineageTag: dbd54a3e-9f15-44a3-b86a-678c328b8178
+		summarizeBy: none
 		sourceColumn: HostID
+
+		annotation SummarizationSetBy = Automatic
 
 	column 호스트명
 		dataType: string
 		lineageTag: 31aef988-73ce-4258-b010-8260afefadc8
+		summarizeBy: none
 		sourceColumn: 호스트명
+
+		annotation SummarizationSetBy = Automatic
 
 	column 대표IP
 		dataType: string
 		lineageTag: 173fcfc9-24d4-47f0-9392-796c99db9dc2
+		summarizeBy: none
 		sourceColumn: 대표IP
+
+		annotation SummarizationSetBy = Automatic
 
 	column 대표IP노마스킹
 		dataType: string
 		lineageTag: 7d32c924-5efe-4d72-ad37-3cb0b011f8fa
+		summarizeBy: none
 		sourceColumn: 대표IP노마스킹
+
+		annotation SummarizationSetBy = Automatic
 
 	column OS
 		dataType: string
 		lineageTag: 88540181-d9bb-4b3c-8800-4e84da65361f
+		summarizeBy: none
 		sourceColumn: OS
+
+		annotation SummarizationSetBy = Automatic
 
 	column OS계열
 		dataType: string
 		lineageTag: 5d815f83-b0d3-4b2b-8228-2e7242384795
+		summarizeBy: none
 		sourceColumn: OS계열
+
+		annotation SummarizationSetBy = Automatic
 
 	column OS버전
 		dataType: string
 		lineageTag: 1a19402d-3668-47e3-831b-d1fd2040936e
+		summarizeBy: none
 		sourceColumn: OS버전
+
+		annotation SummarizationSetBy = Automatic
 
 	column Platform
 		dataType: string
 		lineageTag: 55501be5-ea63-46ba-afa9-63a500358eff
+		summarizeBy: none
 		sourceColumn: Platform
+
+		annotation SummarizationSetBy = Automatic
 
 	column CPU스펙
 		dataType: string
 		lineageTag: 5e6db532-1c43-4252-9d0c-8b04bb588d99
+		summarizeBy: none
 		sourceColumn: CPU스펙
+
+		annotation SummarizationSetBy = Automatic
 
 	column CPU유형
 		dataType: string
 		lineageTag: 8382ad22-8271-4e53-bb2b-f46dda7d8321
+		summarizeBy: none
 		sourceColumn: CPU유형
+
+		annotation SummarizationSetBy = Automatic
 
 	column 물리적CPU수
 		dataType: int64
 		lineageTag: 7d0f25b9-8ce8-4673-92b7-e1854e9b8aa2
+		summarizeBy: sum
 		sourceColumn: 물리적CPU수
+
+		annotation SummarizationSetBy = Automatic
 
 	column CPU물리Core수
 		dataType: int64
 		lineageTag: 6e66d066-efc9-40ba-85fb-ae4e28b64638
+		summarizeBy: sum
 		sourceColumn: CPU물리Core수
+
+		annotation SummarizationSetBy = Automatic
 
 	column CPU논리Core수
 		dataType: int64
 		lineageTag: 3c2d1667-b591-432e-bcb0-4eb89893764e
+		summarizeBy: sum
 		sourceColumn: CPU논리Core수
+
+		annotation SummarizationSetBy = Automatic
 
 	column 메모리용량MB
 		dataType: int64
 		lineageTag: d67519a3-a8c8-4b66-81bc-eb82052a2de8
+		summarizeBy: sum
 		sourceColumn: 메모리용량MB
+
+		annotation SummarizationSetBy = Automatic
 
 	column 호스트운용부서
 		dataType: string
 		lineageTag: 44f50d9f-f702-46c1-a35d-83af6360e299
+		summarizeBy: none
 		sourceColumn: 호스트운용부서
+
+		annotation SummarizationSetBy = Automatic
 
 	column 호스트운용자
 		dataType: string
 		lineageTag: a2ab18c3-c729-473a-bc3b-fd4eb5ed29dc
+		summarizeBy: none
 		sourceColumn: 호스트운용자
+
+		annotation SummarizationSetBy = Automatic
 
 	column PO부서
 		dataType: string
 		lineageTag: c7ecf2d2-b0be-4f37-962b-e8f7591d7887
+		summarizeBy: none
 		sourceColumn: PO부서
+
+		annotation SummarizationSetBy = Automatic
 
 	column PO
 		dataType: string
 		lineageTag: 6d397aa6-6601-4076-b340-f9b9473e0f1d
+		summarizeBy: none
 		sourceColumn: PO
+
+		annotation SummarizationSetBy = Automatic
 
 	column BA부서
 		dataType: string
 		lineageTag: c88fdfdb-fb92-4dc0-9abc-cf666d390f03
+		summarizeBy: none
 		sourceColumn: BA부서
+
+		annotation SummarizationSetBy = Automatic
 
 	column BA
 		dataType: string
 		lineageTag: 2e112fb8-3a05-4c0f-8adf-725d02147015
+		summarizeBy: none
 		sourceColumn: BA
+
+		annotation SummarizationSetBy = Automatic
 
 	column 표준서비스
 		dataType: string
 		lineageTag: b829673e-7e63-489d-b3b1-83de3f41ddf1
+		summarizeBy: none
 		sourceColumn: 표준서비스
+
+		annotation SummarizationSetBy = Automatic
 
 	column 표준서비스명
 		dataType: string
 		lineageTag: b70af908-3dff-441f-847a-27e112424c1b
+		summarizeBy: none
 		sourceColumn: 표준서비스명
+
+		annotation SummarizationSetBy = Automatic
 
 	column 단위서비스
 		dataType: string
 		lineageTag: 753e5ea1-0908-4e07-a727-77d32e0c3f75
+		summarizeBy: none
 		sourceColumn: 단위서비스
+
+		annotation SummarizationSetBy = Automatic
 
 	column 단위서비스명
 		dataType: string
 		lineageTag: 0f2b0629-9be5-4a65-b3d8-a2ff4a556e04
+		summarizeBy: none
 		sourceColumn: 단위서비스명
+
+		annotation SummarizationSetBy = Automatic
 
 	column 서비스등급
 		dataType: string
 		lineageTag: fd203366-756c-478e-aa73-fe94480c5eae
+		summarizeBy: none
 		sourceColumn: 서비스등급
+
+		annotation SummarizationSetBy = Automatic
 
 	column VM수집방식상세
 		dataType: string
 		lineageTag: 23b6bd6d-c1a2-41a2-ad01-8a82d4472f1a
+		summarizeBy: none
 		sourceColumn: VM수집방식상세
+
+		annotation SummarizationSetBy = Automatic
 
 	column 설비상태
 		dataType: string
 		lineageTag: ede3933c-95d2-4e8e-b2fc-806748a1c016
+		summarizeBy: none
 		sourceColumn: 설비상태
+
+		annotation SummarizationSetBy = Automatic
 
 	column 최근접속일자
 		dataType: dateTime
+		formatString: Long Date
 		lineageTag: 55df7df3-da17-4eef-aa8f-818ba1379352
+		summarizeBy: none
 		sourceColumn: 최근접속일자
+
+		variation 변형
+			isDefault
+			relationship: 786727a3-cfab-4ccc-a99c-8d0cf7998a79
+			defaultHierarchy: LocalDateTable_468f33de-6a79-47f5-af01-2ef4868345f6.'날짜 계층'
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation SummarizationSetBy = Automatic
 
 	column 미접속일수
 		dataType: int64
 		lineageTag: 5e7487f1-587d-4b2c-8abd-ded32f325e3d
+		summarizeBy: sum
 		sourceColumn: 미접속일수
+
+		annotation SummarizationSetBy = Automatic
+
+	column 서버관리_TACS등록여부
+		dataType: string
+		lineageTag: 3b4d2551-b60f-4779-b069-cb213c199e81
+		summarizeBy: none
+		sourceColumn: 서버관리_TACS등록여부
+
+		annotation SummarizationSetBy = Automatic
 
 	partition FACT_Host = m
 		mode: import
@@ -196,7 +299,7 @@ table FACT_Host
 				        {"PO부서", type text}, {"PO", type text}, {"BA부서", type text}, {"BA", type text},
 				        {"표준서비스", type text}, {"표준서비스명", type text}, {"단위서비스", type text}, {"단위서비스명", type text},
 				        {"서비스등급", type text}, {"VM수집방식상세", type text}, {"설비상태", type text},
-				        {"최근접속일자", type date}, {"미접속일수", Int64.Type}
+				        {"최근접속일자", type date}, {"미접속일수", Int64.Type}, {"서버관리_TACS등록여부", type text}
 				    })
 				in
 				    Typed

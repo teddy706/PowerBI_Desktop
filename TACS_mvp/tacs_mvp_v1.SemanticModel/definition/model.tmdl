@@ -11,6 +11,8 @@ annotation __PBI_TimeIntelligenceEnabled = 1
 
 annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
 
+annotation PBI_QueryOrder = ["FACT_Host","FACT_Asset","FACT_TACS","DIM_Service","DIM_Department","DIM_OS","FACT_SecurityCompliance","FACT_TACS_Matching","SourceFolder"]
+
 ref table FACT_Host
 ref table FACT_Asset
 ref table FACT_TACS
@@ -19,6 +21,10 @@ ref table DIM_Department
 ref table DIM_OS
 ref table FACT_SecurityCompliance
 ref table FACT_TACS_Matching
+ref table DateTableTemplate_cabf7a38-e3dd-41d4-8da0-f07e71edc5a4
+ref table LocalDateTable_468f33de-6a79-47f5-af01-2ef4868345f6
+ref table TACS_원본추출
+ref table FACT_TACS_Verification
 
 ref cultureInfo ko-KR
 

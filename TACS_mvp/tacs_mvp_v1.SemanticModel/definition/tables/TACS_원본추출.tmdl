@@ -1,0 +1,37 @@
+table TACS_원본추출
+	lineageTag: 39824d12-6344-49a9-a7bb-357b35501f68
+
+	column HostID
+		dataType: string
+		isKey
+		lineageTag: 6ff67b39-e951-404d-98d5-61a7cf684857
+		sourceColumn: HostID
+
+	column 장비명
+		dataType: string
+		lineageTag: 0d7bb12b-2273-4474-b0bd-9170da31158b
+		sourceColumn: 장비명
+
+	column IP
+		dataType: string
+		lineageTag: c2a00fcf-73e1-4fa4-9233-ef479c7cba7f
+		sourceColumn: IP
+
+	column 등록일시
+		dataType: dateTime
+		lineageTag: 78e88f43-ed12-47d2-86f9-991a978f1d83
+		sourceColumn: 등록일시
+
+	partition TACS_원본추출 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "지역NW운용본부_20260828.xlsx"), null, true),
+				    Sheet = Source{[Item="TACS원본추출", Kind="Sheet"]}[Data],
+				    Promoted = Table.PromoteHeaders(Sheet, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {
+				        {"HostID", type text}, {"장비명", type text}, {"IP", type text}, {"등록일시", type datetime}
+				    })
+				in
+				    Typed
+

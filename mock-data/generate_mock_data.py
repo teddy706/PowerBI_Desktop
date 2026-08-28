@@ -297,6 +297,59 @@ for idx, h in enumerate(hosts, start=1):
     })
 
 
+# ---------------------------------------------------------------------------
+# 9장 확장: 서버관리_TACS등록여부 + TACS원본추출 (FACT_TACS_Verification 원천)
+# 서버관리(FACT_Host)가 "TACS 등록됨"이라 주장하는 것과, TACS 시스템이 실제로
+# 그 호스트를 (같은 이름/IP로) 갖고 있는지는 서로 다른 시스템의 서로 다른 데이터.
+# UNVERIFIED는 TACS원본에 해당 HostID 행 자체가 없는 경우로 표현한다.
+# ---------------------------------------------------------------------------
+verify_order = list(hosts)
+random.shuffle(verify_order)
+
+N_NO_CLAIM = 50          # 서버관리_TACS등록여부 = N (전체 500건 중)
+N_VERIFIED = 382         # 등록여부=Y(450건) 중 이름·IP 모두 일치
+N_NAME_ONLY = 27         # 이름만 일치 (IP 다름)
+N_IP_ONLY = 23           # IP만 일치 (이름 다름)
+N_UNVERIFIED = 18        # 등록=Y라 주장하지만 TACS원본에 행 자체가 없음
+assert N_VERIFIED + N_NAME_ONLY + N_IP_ONLY + N_UNVERIFIED == 500 - N_NO_CLAIM
+
+claim_status = {}
+cursor = 0
+for h in verify_order[cursor:cursor + N_NO_CLAIM]:
+    claim_status[h["HostID"]] = ("N", None)
+cursor += N_NO_CLAIM
+for h in verify_order[cursor:cursor + N_VERIFIED]:
+    claim_status[h["HostID"]] = ("Y", "VERIFIED")
+cursor += N_VERIFIED
+for h in verify_order[cursor:cursor + N_NAME_ONLY]:
+    claim_status[h["HostID"]] = ("Y", "VERIFIED_NAME_ONLY")
+cursor += N_NAME_ONLY
+for h in verify_order[cursor:cursor + N_IP_ONLY]:
+    claim_status[h["HostID"]] = ("Y", "VERIFIED_IP_ONLY")
+cursor += N_IP_ONLY
+for h in verify_order[cursor:cursor + N_UNVERIFIED]:
+    claim_status[h["HostID"]] = ("Y", "UNVERIFIED")
+
+tacs_source_rows = []
+for h in hosts:
+    claim, plan_status = claim_status[h["HostID"]]
+    h["서버관리_TACS등록여부"] = claim
+    if plan_status in (None, "UNVERIFIED"):
+        continue  # 등록 안 함 / 등록했다는 주장이 TACS원본엔 없음 -> 행 미생성
+    if plan_status == "VERIFIED":
+        src_name, src_ip = h["호스트명"], h["대표IP"]
+    elif plan_status == "VERIFIED_NAME_ONLY":
+        src_name, src_ip = h["호스트명"], perturb_ip(h["대표IP"])
+    else:  # VERIFIED_IP_ONLY
+        src_name, src_ip = perturb_name(h["호스트명"]), h["대표IP"]
+    tacs_source_rows.append({
+        "HostID": h["HostID"],
+        "장비명": src_name,
+        "IP": src_ip,
+        "등록일시": str(rand_date(date(2024, 1, 1), TODAY)),
+    })
+
+
 def write_sheet(ws, rows):
     if not rows:
         return
@@ -328,6 +381,8 @@ ws1.title = "서부"
 write_sheet(ws1, tacs_rows)
 ws2 = wb.create_sheet("보안통제")
 write_sheet(ws2, sec_rows)
+ws3 = wb.create_sheet("TACS원본추출")
+write_sheet(ws3, tacs_source_rows)
 wb.save(OUT_DIR / "지역NW운용본부_20260828.xlsx")
 
 # 4) 차원 테이블 (Power BI에서 직접 로드할 참조 데이터 — 원본에 없는 파생 테이블)
@@ -359,6 +414,23 @@ for a in all_asset_rows:
     else:
         match_counts["NO_MATCH"] += 1
 
+# --- FACT_TACS_Verification 시뮬레이션 (HostID로 TACS원본 조인, name/IP 비교) ---
+tacs_src_by_host = {r["HostID"]: r for r in tacs_source_rows}
+verify_counts = {"VERIFIED": 0, "VERIFIED_NAME_ONLY": 0, "VERIFIED_IP_ONLY": 0, "UNVERIFIED": 0, "해당없음(N)": 0}
+for h in hosts:
+    claim = h["서버관리_TACS등록여부"]
+    src = tacs_src_by_host.get(h["HostID"])
+    if src is None:
+        verify_counts["UNVERIFIED" if claim == "Y" else "해당없음(N)"] += 1
+    else:
+        name_ok, ip_ok = src["장비명"] == h["호스트명"], src["IP"] == h["대표IP"]
+        if name_ok and ip_ok:
+            verify_counts["VERIFIED"] += 1
+        elif name_ok:
+            verify_counts["VERIFIED_NAME_ONLY"] += 1
+        else:
+            verify_counts["VERIFIED_IP_ONLY"] += 1
+
 # ---------------------------------------------------------------------------
 # 요약 리포트 (콘솔 한글 인코딩 문제 회피를 위해 UTF-8 파일로 기록)
 # ---------------------------------------------------------------------------
@@ -373,6 +445,9 @@ with open(Path(__file__).parent / "summary.txt", "w", encoding="utf-8") as f:
     f.write(f"\nFACT_TACS_Matching 검증 시뮬레이션 (Asset 100건 기준):\n")
     for k, v in match_counts.items():
         f.write(f"  {k}: {v}건 ({v/len(all_asset_rows):.0%})\n")
+    f.write(f"\nFACT_TACS_Verification 검증 시뮬레이션 (Host 500건 기준, TACS원본추출 {len(tacs_source_rows)}건):\n")
+    for k, v in verify_counts.items():
+        f.write(f"  {k}: {v}건 ({v/len(hosts):.0%})\n")
     f.write(f"\n출력 위치: {OUT_DIR}\n")
 
 print("done - see summary.txt")

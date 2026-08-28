@@ -26,3 +26,14 @@ relationship FACT_Host_호스트운용부서_DIM_Department_부서명
 	fromColumn: FACT_Host.호스트운용부서
 	toColumn: DIM_Department.부서명
 
+relationship 786727a3-cfab-4ccc-a99c-8d0cf7998a79
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FACT_Host.최근접속일자
+	toColumn: LocalDateTable_468f33de-6a79-47f5-af01-2ef4868345f6.Date
+
+relationship FACT_TACS_Verification_HostID_FACT_Host_HostID
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: FACT_TACS_Verification.HostID
+	toColumn: FACT_Host.HostID
+

@@ -1,0 +1,232 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "1391e62f7b669d9a24a0",
+  "position": {
+    "x": 40,
+    "y": 580,
+    "z": 1000,
+    "height": 400,
+    "width": 1460,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "HostID"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.HostID",
+              "nativeQueryRef": "HostID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "호스트명"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.호스트명",
+              "nativeQueryRef": "호스트명"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "대표IP"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.대표IP",
+              "nativeQueryRef": "대표IP"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "TACS원본_장비명"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.TACS원본_장비명",
+              "nativeQueryRef": "TACS원본_장비명"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "TACS원본_IP"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.TACS원본_IP",
+              "nativeQueryRef": "TACS원본_IP"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "VerifyStatus"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.VerifyStatus",
+              "nativeQueryRef": "VerifyStatus"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "불일치사유"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.불일치사유",
+              "nativeQueryRef": "불일치사유"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_Verification"
+                    }
+                  },
+                  "Property": "VerifyScore"
+                }
+              },
+              "queryRef": "FACT_TACS_Verification.VerifyScore",
+              "nativeQueryRef": "VerifyScore"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FACT_TACS_Verification"
+                  }
+                },
+                "Property": "VerifyScore"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "FilterVerifyStatusUnverified01",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "FACT_TACS_Verification"
+              }
+            },
+            "Property": "VerifyStatus"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "s",
+              "Entity": "FACT_TACS_Verification",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "s"
+                          }
+                        },
+                        "Property": "VerifyStatus"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'UNVERIFIED'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}
