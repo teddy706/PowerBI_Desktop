@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "2336e85779cf69ab3338",
+  "position": {
+    "x": 980,
+    "y": 380,
+    "z": 1000,
+    "height": 580,
+    "width": 900,
+    "tabOrder": 1007
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_History"
+                    }
+                  },
+                  "Property": "스냅샷일자"
+                }
+              },
+              "queryRef": "FACT_TACS_History.스냅샷일자",
+              "nativeQueryRef": "스냅샷일자",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_TACS_History"
+                    }
+                  },
+                  "Property": "이력 미확인건수"
+                }
+              },
+              "queryRef": "FACT_TACS_History.이력 미확인건수",
+              "nativeQueryRef": "이력 미확인건수"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "defaultColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#DC2626'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,6 +1,10 @@
 table FACT_TACS_History
 	lineageTag: 93fa43a8-a519-4633-bb06-571f4e7d6f22
 
+	measure '이력 미확인건수' = CALCULATE(COUNTROWS(FACT_TACS_History), FACT_TACS_History[VerifyStatus] = "UNVERIFIED")
+		formatString: #,0
+		lineageTag: 9fc4e50a-43e4-47c3-b3e6-ac48de0526a2
+
 	column HistoryKey
 		dataType: string
 		isKey

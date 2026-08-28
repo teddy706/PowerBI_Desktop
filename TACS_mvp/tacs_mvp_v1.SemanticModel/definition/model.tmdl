@@ -31,6 +31,7 @@ ref table FACT_TACS_History
 ref table FACT_TACS_Escalation
 ref table FACT_JudgmentCase
 ref table DIM_WhitelistRule
+ref table 보안지표비교
 
 ref cultureInfo ko-KR
 

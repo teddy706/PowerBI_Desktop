@@ -1,0 +1,29 @@
+table 보안지표비교
+	lineageTag: 51bd4882-68b2-4962-86ca-27a4f3db6117
+
+	measure 지표값 = SUM('보안지표비교'[비율])
+		formatString: 0.0%
+		lineageTag: eb3b4531-678a-45a0-8abe-7cbd65f14276
+
+	column 지표명
+		isNameInferred
+		sourceColumn: [지표명]
+
+	column 비율
+		isNameInferred
+		sourceColumn: [비율]
+
+	partition 보안지표비교 = calculated
+		mode: import
+		source =
+				UNION(
+				    ROW("지표명", "EDR 준수율", "비율", [EDR 준수율]),
+				    ROW("지표명", "웹쉘 준수율", "비율", [웹쉘 준수율]),
+				    ROW("지표명", "백신 준수율", "비율", [백신 준수율]),
+				    ROW("지표명", "SMP 진단율", "비율", [SMP 진단율]),
+				    ROW("지표명", "ACL 설정율", "비율", [ACL 설정율]),
+				    ROW("지표명", "EOS 해소율", "비율", [EOS 해소율]),
+				    ROW("지표명", "개인정보암호화율", "비율", [개인정보암호화율]),
+				    ROW("지표명", "로그관리수용율", "비율", [로그관리수용율])
+				)
+

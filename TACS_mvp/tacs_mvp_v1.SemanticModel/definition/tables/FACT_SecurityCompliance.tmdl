@@ -33,6 +33,30 @@ table FACT_SecurityCompliance
 		formatString: 0.0%
 		lineageTag: 3e85157a-03b9-4d93-87f8-cb549cbf3e30
 
+	measure 'EOS 해소율' =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[EOS해소여부] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: 441d407b-edcd-4c63-a256-55834156ae44
+
+	measure 개인정보암호화율 =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[개인정보암호화] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: 7bc2008a-e304-49ae-b7e7-780265d57995
+
+	measure 로그관리수용율 =
+			DIVIDE(
+			    CALCULATE(COUNTROWS(FACT_SecurityCompliance), FACT_SecurityCompliance[중앙로그관리수용] = "Y"),
+			    COUNTROWS(FACT_SecurityCompliance)
+			)
+		formatString: 0.0%
+		lineageTag: ddae6b1d-0464-4f8e-a3b2-53adf40027d8
+
 	column HostID
 		dataType: string
 		isKey
